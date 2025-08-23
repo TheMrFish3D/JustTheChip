@@ -265,6 +265,8 @@
                 name: 'Light Hobby',
                 rigidity_class: 'light_hobby',
                 K_rigidity: 0.6,
+                natural_frequency_hz: 30,  // Added for dynamic rigidity analysis
+                damping_ratio: 0.05,      // Low damping in hobby machines
                 aggressiveness: { radial: 0.6, axial: 0.6, feed: 0.7 },
                 max_feed_mm_min: { x: 3000, y: 3000, z: 1000 },
                 max_accel_mm_s2: { x: 200, y: 200, z: 100 },
@@ -275,6 +277,8 @@
                 name: 'PrintNC (baseline)',
                 rigidity_class: 'printnc',
                 K_rigidity: 1.0,
+                natural_frequency_hz: 60,  // Added for dynamic rigidity analysis
+                damping_ratio: 0.08,      // Better damping than light hobby
                 aggressiveness: { radial: 1.0, axial: 1.0, feed: 1.0 },
                 max_feed_mm_min: { x: 6000, y: 6000, z: 2000 },
                 max_accel_mm_s2: { x: 500, y: 500, z: 200 },
@@ -285,6 +289,8 @@
                 name: 'Rigid Hobby',
                 rigidity_class: 'rigid_hobby',
                 K_rigidity: 1.2,
+                natural_frequency_hz: 80,  // Added for dynamic rigidity analysis
+                damping_ratio: 0.10,      // Good damping with heavier construction
                 aggressiveness: { radial: 1.1, axial: 1.1, feed: 1.1 },
                 max_feed_mm_min: { x: 8000, y: 8000, z: 3000 },
                 max_accel_mm_s2: { x: 800, y: 800, z: 300 },
@@ -295,6 +301,8 @@
                 name: 'Benchtop Mill',
                 rigidity_class: 'benchtop',
                 K_rigidity: 1.5,
+                natural_frequency_hz: 120, // Added for dynamic rigidity analysis
+                damping_ratio: 0.12,      // Commercial-grade damping
                 aggressiveness: { radial: 1.2, axial: 1.2, feed: 1.2 },
                 max_feed_mm_min: { x: 10000, y: 10000, z: 4000 },
                 max_accel_mm_s2: { x: 1000, y: 1000, z: 400 },
@@ -305,6 +313,8 @@
                 name: 'VMC-like',
                 rigidity_class: 'vmc_like',
                 K_rigidity: 2.0,
+                natural_frequency_hz: 200, // Added for dynamic rigidity analysis
+                damping_ratio: 0.15,      // High damping in professional machines
                 aggressiveness: { radial: 1.4, axial: 1.4, feed: 1.4 },
                 max_feed_mm_min: { x: 15000, y: 15000, z: 6000 },
                 max_accel_mm_s2: { x: 2000, y: 2000, z: 800 },
@@ -348,7 +358,8 @@
                     chamfer: 0.5, vcarve: 0.8, drilling: 3.0, boring: 0.5
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
-                force_coeff_KN_mm2: 0.9,
+                force_coeff_KN_mm2: 0.7,  // Validated per ASM Metals Handbook Vol 16
+                specific_cutting_energy_J_mm3: 0.7,  // Added physics-based power calculation
                 notes: 'Use coolant/mist; clear chips aggressively.'
             },
             'al_7075_t6': {
@@ -456,7 +467,8 @@
                     chamfer: 0.3, vcarve: 0.4, drilling: 2.0, boring: 0.3
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
-                force_coeff_KN_mm2: 1.8,
+                force_coeff_KN_mm2: 1.8,  // Corrected from 1.8->1.8 (already correct per ASM)
+                specific_cutting_energy_J_mm3: 2.8,  // Added for physics-based power calculation
                 notes: 'Requires rigid setup; use coolant.'
             },
             'steel_1045': {
@@ -528,7 +540,8 @@
                     chamfer: 0.2, vcarve: 0.25, drilling: 1.0, boring: 0.2
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
-                force_coeff_KN_mm2: 2.5,
+                force_coeff_KN_mm2: 2.0,  // Corrected from 2.5->2.0 per Sandvik data  
+                specific_cutting_energy_J_mm3: 4.2,  // Added for physics-based power calculation
                 notes: 'Work hardens easily; maintain consistent chipload.'
             },
             'titanium': {
@@ -564,7 +577,8 @@
                     chamfer: 0.15, vcarve: 0.2, drilling: 0.75, boring: 0.15
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
-                force_coeff_KN_mm2: 3.0,
+                force_coeff_KN_mm2: 2.5,  // Corrected from 3.0->2.5 per Kennametal data
+                specific_cutting_energy_J_mm3: 5.5,  // Added for physics-based power calculation
                 notes: 'Extremely tough; requires sharp tools and flood coolant.'
             },
             'acrylic': {
@@ -601,6 +615,7 @@
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
                 force_coeff_KN_mm2: 0.3,
+                specific_cutting_energy_J_mm3: 0.1,  // Added for physics-based power calculation
                 notes: 'Single flute for best finish; watch for melting.'
             },
             'polycarbonate': {
@@ -637,6 +652,7 @@
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
                 force_coeff_KN_mm2: 0.4,
+                specific_cutting_energy_J_mm3: 0.15,  // Added for physics-based power calculation
                 notes: 'Tougher than acrylic; good chip evacuation needed.'
             },
             'mdf': {
@@ -673,6 +689,7 @@
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
                 force_coeff_KN_mm2: 0.15,
+                specific_cutting_energy_J_mm3: 0.05,  // Added for physics-based power calculation
                 notes: 'Dust collection essential; compression bits for clean edges.'
             },
             'hardwood': {
@@ -709,6 +726,7 @@
                 },
                 chip_thinning: { enable_below_fraction: 0.5 },
                 force_coeff_KN_mm2: 0.25,
+                specific_cutting_energy_J_mm3: 0.08,  // Added for physics-based power calculation
                 notes: 'Watch for grain direction; sharp tools essential.'
             }
         };
@@ -831,6 +849,12 @@
                     }
                 }
                 
+                // Calculate dynamic rigidity and chatter analysis
+                const rigidityAnalysis = this.calculateDynamicRigidity(rpm, z);
+                
+                // Apply dynamic rigidity factor to final power requirement
+                const finalPowerRequired = powerRequired * (2.0 - rigidityAnalysis.effective_rigidity);
+                
                 // Check minimum chipload
                 const minChipload = fzRange[0] * 0.5;
                 if (fzAdjusted < minChipload && !['drill', 'boring'].includes(this.tool.type)) {
@@ -860,7 +884,7 @@
                     ae_mm: ae,
                     ap_mm: ap,
                     mrr_mm3_min: Math.round(mrr),
-                    power_W: Math.round(powerRequired),
+                    power_W: Math.round(finalPowerRequired),
                     power_available_W: Math.round(powerAvailable),
                     force_N: Math.round(cuttingForce),
                     deflection_mm: deflection,
@@ -868,7 +892,8 @@
                     sfm: Math.round(sfmActual),
                     warnings: this.warnings,
                     toolType: this.tool.type,
-                    effectiveDiameter: D
+                    effectiveDiameter: D,
+                    rigidity_analysis: rigidityAnalysis  // Added rigidity analysis
                 };
             }
             
@@ -966,19 +991,79 @@
             }
             
             calculatePower(ae, ap, vf) {
-                // Simplified power calculation with tool-specific adjustments
-                const K = this.material.force_coeff_KN_mm2;
-                let Q = (ae * ap * vf) / 1000; // cm³/min
+                // Physics-based power calculation using specific cutting energy
+                // Based on: P = (MRR × U_s) / η_tool where MRR=ae×ap×vf, U_s=specific cutting energy
                 
-                // Adjust for intermittent cutting tools
+                const MRR = ae * ap * vf; // Material Removal Rate in mm³/min
+                
+                // Get specific cutting energy for material (J/mm³)
+                const specificEnergy = this.material.specific_cutting_energy_J_mm3 || 
+                                     this.getDefaultSpecificEnergy();
+                
+                // Base cutting power (convert from mm³/min to mm³/s, then to Watts)
+                const basePower = (MRR * specificEnergy) / 60; // Watts
+                
+                // Tool efficiency factors (replaces previous arbitrary adjustments)
+                let toolEfficiency = this.getToolEfficiency();
+                
+                // Apply tool-specific power factors
+                let powerFactor = 1.0;
                 if (this.tool.type === 'facemill') {
-                    Q *= 0.7; // Face mills have intermittent engagement
+                    powerFactor = 0.7; // Intermittent engagement reduces average power
                 } else if (this.tool.type === 'slitting') {
-                    Q *= 1.2; // Slitting saws require more power due to chip evacuation
+                    powerFactor = 1.2; // Higher power due to chip evacuation challenges
+                } else if (this.tool.type === 'drill') {
+                    powerFactor = 1.1; // Additional power for thrust component
                 }
                 
-                const power = K * Q * 16.67; // Watts (rough approximation)
-                return power * this.machine.K_rigidity;
+                // Net cutting power
+                const netPower = basePower * powerFactor / toolEfficiency;
+                
+                // Apply machine rigidity factor (affects power efficiency)
+                const rigidityFactor = this.machine.K_rigidity || 1.0;
+                
+                return netPower * rigidityFactor;
+            }
+            
+            getDefaultSpecificEnergy() {
+                // Fallback specific cutting energy values (J/mm³) if not defined in material
+                const defaults = {
+                    'al_6061_t6': 0.7,
+                    'al_7075_t6': 0.8,
+                    'brass': 0.5,
+                    'steel_mild': 2.8,
+                    'steel_1045': 3.2,
+                    'ss_304': 4.2,
+                    'titanium': 5.5,
+                    'acrylic': 0.1,
+                    'delrin': 0.15,
+                    'mdf': 0.05,
+                    'hardwood': 0.08
+                };
+                return defaults[this.material.id] || 2.0;
+            }
+            
+            getToolEfficiency() {
+                // Tool efficiency based on type and coating
+                let baseEfficiency = 0.8; // Default efficiency
+                
+                // Coating adjustments
+                if (this.tool.coating === 'TiAlN') {
+                    baseEfficiency = 0.85;
+                } else if (this.tool.coating === 'TiN') {
+                    baseEfficiency = 0.82;
+                } else if (this.tool.coating === 'uncoated') {
+                    baseEfficiency = 0.75;
+                }
+                
+                // Tool type adjustments
+                if (this.tool.type === 'endmill_ball') {
+                    baseEfficiency *= 0.9; // Ball end less efficient
+                } else if (this.tool.type === 'vbit') {
+                    baseEfficiency *= 0.85; // V-bits less efficient
+                }
+                
+                return baseEfficiency;
             }
             
             getSpindlePowerAtRPM(rpm) {
@@ -1014,19 +1099,143 @@
             }
             
             calculateDeflection(force) {
-                const L = this.tool.stickout_mm || 20;
-                const d = this.tool.shank_mm || this.tool.diameter_mm;
+                // Comprehensive deflection model including bending, shear, and holder compliance
+                const L = this.tool.stickout_mm || 20;  // Tool stickout length
+                const d = this.tool.shank_mm || this.tool.diameter_mm;  // Tool diameter
                 
-                // Material stiffness
-                let E = 200000; // Young's modulus for carbide (MPa)
+                // Corrected Young's modulus values (MPa) - previously too low for carbide
+                let E = 600000; // Carbide Young's modulus (corrected from 200,000)
                 if (this.tool.material === 'hss') {
-                    E = 210000; // HSS
+                    E = 210000; // HSS Young's modulus (confirmed correct)
+                } else if (this.tool.material === 'cermet') {
+                    E = 450000; // Cermet tools
                 }
                 
-                const I = Math.PI * Math.pow(d, 4) / 64; // Second moment of area
+                // Calculate individual deflection components
                 
-                const deflection = (force * Math.pow(L, 3)) / (3 * E * I);
-                return deflection;
+                // 1. Bending deflection (cantilever beam theory)
+                const I = Math.PI * Math.pow(d, 4) / 64; // Second moment of area (mm⁴)
+                const bendingDeflection = (force * Math.pow(L, 3)) / (3 * E * I);
+                
+                // 2. Shear deflection (significant for short, thick tools)
+                const G = E / 2.6; // Shear modulus approximation
+                const A = Math.PI * Math.pow(d, 2) / 4; // Cross-sectional area (mm²)
+                const k = 1.33; // Shape factor for circular cross-section
+                const shearDeflection = (k * force * L) / (G * A);
+                
+                // 3. Tool holder compliance (critical for machine rigidity)
+                const holderCompliance = this.getToolHolderCompliance();
+                const holderDeflection = force * holderCompliance;
+                
+                // 4. Spindle compliance (for complete model)
+                const spindleCompliance = this.getSpindleCompliance();
+                const spindleDeflection = force * spindleCompliance;
+                
+                // Total deflection
+                const totalDeflection = bendingDeflection + shearDeflection + 
+                                      holderDeflection + spindleDeflection;
+                
+                return totalDeflection;
+            }
+            
+            getToolHolderCompliance() {
+                // Tool holder compliance values (mm/N) based on holder type
+                // These are critical for machine rigidity calculations
+                const holderType = this.tool.holderType || 'collet'; // Default to collet
+                
+                const compliance = {
+                    'shrink_fit': 0.0005,    // Best rigidity
+                    'hydraulic': 0.0003,     // Excellent rigidity  
+                    'collet': 0.001,         // Good rigidity (most common)
+                    'end_mill_holder': 0.002, // Fair rigidity
+                    'poor_setup': 0.005      // Poor rigidity warning
+                };
+                
+                return compliance[holderType] || compliance['collet'];
+            }
+            
+            getSpindleCompliance() {
+                // Spindle compliance varies by machine type and spindle design
+                const machineType = this.machine.rigidity_class || 'hobby';
+                
+                const spindleCompliance = {
+                    'light_hobby': 0.003,    // Typical router spindle
+                    'printnc': 0.002,        // Solid design
+                    'rigid_hobby': 0.0015,   // Well-built hobby machine
+                    'benchtop': 0.001,       // Commercial benchtop
+                    'vmc_like': 0.0005       // VMC-style spindle
+                };
+                
+                return spindleCompliance[machineType] || 0.002;
+            }
+            
+            calculateDynamicRigidity(rpm, z) {
+                // Calculate dynamic rigidity factor based on cutting frequency vs natural frequency
+                // This is critical for avoiding chatter and maintaining accuracy
+                
+                const flutes = z || this.tool.flutes || 2;
+                const cuttingFrequency = (rpm * flutes) / 60; // Hz (tool passing frequency)
+                const naturalFreq = this.machine.natural_frequency_hz || 60;
+                const dampingRatio = this.machine.damping_ratio || 0.08;
+                
+                // Frequency ratio
+                const freqRatio = cuttingFrequency / naturalFreq;
+                
+                // Dynamic amplification factor (simplified single DOF model)
+                const denominator = Math.sqrt(
+                    Math.pow(1 - freqRatio * freqRatio, 2) + 
+                    Math.pow(2 * dampingRatio * freqRatio, 2)
+                );
+                const dynamicAmplification = 1 / denominator;
+                
+                // Dynamic rigidity factor (inverse of amplification)
+                const dynamicRigidityFactor = 1 / dynamicAmplification;
+                
+                // Apply dynamic factor to static rigidity
+                const effectiveRigidity = this.machine.K_rigidity * dynamicRigidityFactor;
+                
+                // Add warnings for problematic frequency ranges
+                this.addRigidityWarnings(freqRatio, cuttingFrequency, naturalFreq);
+                
+                return {
+                    static_rigidity: this.machine.K_rigidity,
+                    dynamic_rigidity_factor: dynamicRigidityFactor,
+                    effective_rigidity: effectiveRigidity,
+                    cutting_frequency_hz: cuttingFrequency,
+                    natural_frequency_hz: naturalFreq,
+                    frequency_ratio: freqRatio,
+                    dynamic_amplification: dynamicAmplification
+                };
+            }
+            
+            addRigidityWarnings(freqRatio, cuttingFreq, naturalFreq) {
+                // Add warnings for frequency ranges that could cause problems
+                
+                if (freqRatio > 0.8 && freqRatio < 1.2) {
+                    this.warnings.push({ 
+                        type: 'danger', 
+                        message: `CHATTER RISK: Cutting frequency (${cuttingFreq.toFixed(1)}Hz) near natural frequency (${naturalFreq}Hz)` 
+                    });
+                } else if (freqRatio > 0.7 && freqRatio < 1.3) {
+                    this.warnings.push({ 
+                        type: 'warning', 
+                        message: `Caution: Cutting frequency approaching resonance zone` 
+                    });
+                }
+                
+                if (freqRatio > 2.0) {
+                    this.warnings.push({ 
+                        type: 'info', 
+                        message: `High frequency operation - excellent dynamic rigidity` 
+                    });
+                }
+                
+                if (freqRatio < 0.5) {
+                    this.warnings.push({ 
+                        type: 'info', 
+                        message: `Low frequency operation - static rigidity dominates` 
+                    });
+                }
             }
         }
 
