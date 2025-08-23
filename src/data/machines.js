@@ -32,26 +32,26 @@ export const DRIVE_SYSTEMS = {
     ballscrew: {
         name: 'Ball Screw',
         typical_efficiency: 0.90,
-        properties: ['lead_mm_per_rev', 'accuracy_class', 'preload_type', 'max_speed_rpm'],
+        properties: ['lead_mm_per_rev', 'accuracy_class', 'preload_type', 'max_speed_rpm', 'gear_reduction_ratio', 'motor_gear_teeth', 'drive_gear_teeth'],
         accuracy_classes: ['C10', 'C7', 'C5', 'C3'],
         preload_types: ['none', 'light', 'medium', 'heavy']
     },
     leadscrew: {
         name: 'Lead Screw (Acme)',
         typical_efficiency: 0.75,
-        properties: ['lead_mm_per_rev', 'thread_angle_deg', 'max_speed_rpm'],
+        properties: ['lead_mm_per_rev', 'thread_angle_deg', 'max_speed_rpm', 'gear_reduction_ratio', 'motor_gear_teeth', 'drive_gear_teeth'],
         typical_thread_angles: [29, 30] // Acme thread
     },
     belt_drive: {
         name: 'Belt Drive',
         typical_efficiency: 0.95,
-        properties: ['pulley_ratio', 'belt_pitch_mm', 'belt_width_mm'],
+        properties: ['pulley_ratio', 'belt_pitch_mm', 'belt_width_mm', 'motor_pulley_teeth', 'drive_pulley_teeth'],
         belt_pitches: [2, 3, 5, 8] // GT2, GT3, GT5, GT8
     },
     rack_pinion: {
         name: 'Rack & Pinion',
         typical_efficiency: 0.85,
-        properties: ['module_mm', 'pinion_teeth', 'reduction_ratio'],
+        properties: ['module_mm', 'pinion_teeth', 'reduction_ratio', 'gear_reduction_ratio'],
         typical_modules: [1.0, 1.25, 1.5, 2.0, 2.5, 3.0]
     },
     linear_motor: {
@@ -93,7 +93,10 @@ export const MACHINE_PRESETS = {
                 drive_specs: {
                     lead_mm_per_rev: 8,
                     efficiency: 0.75,
-                    max_speed_rpm: 300
+                    max_speed_rpm: 300,
+                    gear_reduction_ratio: 1.0,
+                    motor_gear_teeth: 20,
+                    drive_gear_teeth: 20
                 }
             },
             y: {
@@ -109,7 +112,10 @@ export const MACHINE_PRESETS = {
                 drive_specs: {
                     lead_mm_per_rev: 8,
                     efficiency: 0.75,
-                    max_speed_rpm: 300
+                    max_speed_rpm: 300,
+                    gear_reduction_ratio: 1.0,
+                    motor_gear_teeth: 20,
+                    drive_gear_teeth: 20
                 }
             },
             z: {
@@ -125,7 +131,10 @@ export const MACHINE_PRESETS = {
                 drive_specs: {
                     lead_mm_per_rev: 4,
                     efficiency: 0.75,
-                    max_speed_rpm: 250
+                    max_speed_rpm: 250,
+                    gear_reduction_ratio: 1.0,
+                    motor_gear_teeth: 20,
+                    drive_gear_teeth: 20
                 }
             }
         }
@@ -154,7 +163,10 @@ export const MACHINE_PRESETS = {
                     accuracy_class: 'C7',
                     preload_type: 'light',
                     efficiency: 0.85,
-                    max_speed_rpm: 1000
+                    max_speed_rpm: 1000,
+                    gear_reduction_ratio: 1.0,
+                    motor_gear_teeth: 20,
+                    drive_gear_teeth: 20
                 }
             },
             y: {
@@ -447,6 +459,33 @@ export const MACHINE_UTILS = {
                 
             default:
                 return 5000; // Conservative default
+        }
+    },
+    
+    getFinalRotationDistance(axis) {
+        const drive = axis.drive_specs;
+        
+        switch (axis.drive_system) {
+            case 'ballscrew':
+            case 'leadscrew':
+                const gearRatio = drive.gear_reduction_ratio || 1.0;
+                const leadPerRev = drive.lead_mm_per_rev || 5.0;
+                return leadPerRev / gearRatio;
+                
+            case 'belt_drive':
+                const motorTeeth = drive.motor_pulley_teeth || 20;
+                const driveTeeth = drive.drive_pulley_teeth || 20;
+                const beltPitch = drive.belt_pitch_mm || 2.0;
+                return (driveTeeth * beltPitch) / motorTeeth;
+                
+            case 'rack_pinion':
+                const module = drive.module_mm || 1.0;
+                const pinionTeeth = drive.pinion_teeth || 20;
+                const gearReduction = drive.gear_reduction_ratio || 1.0;
+                return (Math.PI * module * pinionTeeth) / gearReduction;
+                
+            default:
+                return 0;
         }
     }
 };
