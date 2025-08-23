@@ -44,7 +44,10 @@ export function MachineConfigComponent({ selectedMachine, onMachineChange, onCus
                 accuracy_class: 'C7',
                 preload_type: 'light',
                 efficiency: 0.85,
-                max_speed_rpm: 1000
+                max_speed_rpm: 1000,
+                gear_reduction_ratio: 1.0,
+                motor_gear_teeth: 20,
+                drive_gear_teeth: 20
             }
         };
     }
@@ -263,6 +266,22 @@ function AxisConfigComponent({ axisName, axis, onMotorChange, onDriveChange, onA
                             {MOTOR_TYPES[axis.motor_type]?.control_type || 'unknown'}
                         </span>
                     </div>
+                    <div>
+                        <span className="text-gray-600">Final Rotation Distance:</span>
+                        <span className="ml-1 font-medium">
+                            {MACHINE_UTILS.getFinalRotationDistance(axis).toFixed(2)} mm/rev
+                        </span>
+                    </div>
+                    <div>
+                        <span className="text-gray-600">Gear Reduction:</span>
+                        <span className="ml-1 font-medium">
+                            {axis.drive_specs.gear_reduction_ratio ? 
+                                `${axis.drive_specs.gear_reduction_ratio.toFixed(1)}:1` : 
+                                (axis.drive_system === 'belt_drive' ? 
+                                    `${(axis.drive_specs.motor_pulley_teeth || 20)}:${(axis.drive_specs.drive_pulley_teeth || 20)}` : 
+                                    '1:1')}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -424,21 +443,29 @@ function getDefaultDriveSpecs(driveType) {
                 accuracy_class: 'C7',
                 preload_type: 'light',
                 efficiency: 0.90,
-                max_speed_rpm: 1000
+                max_speed_rpm: 1000,
+                gear_reduction_ratio: 1.0,
+                motor_gear_teeth: 20,
+                drive_gear_teeth: 20
             };
         case 'leadscrew':
             return {
                 lead_mm_per_rev: 8,
                 thread_angle_deg: 29,
                 efficiency: 0.75,
-                max_speed_rpm: 300
+                max_speed_rpm: 300,
+                gear_reduction_ratio: 1.0,
+                motor_gear_teeth: 20,
+                drive_gear_teeth: 20
             };
         case 'belt_drive':
             return {
                 pulley_ratio: 1.0,
                 belt_pitch_mm: 2,
                 belt_width_mm: 6,
-                efficiency: 0.95
+                efficiency: 0.95,
+                motor_pulley_teeth: 20,
+                drive_pulley_teeth: 20
             };
         default:
             return { efficiency: 0.85 };
@@ -454,7 +481,10 @@ function formatPropertyName(prop) {
         .replace(/Deg/g, '(°)')
         .replace(/A$/g, '(A)')
         .replace(/W$/g, '(W)')
-        .replace(/V$/g, '(V)');
+        .replace(/V$/g, '(V)')
+        .replace(/Mm/g, '(mm)')
+        .replace(/Ratio/g, 'Ratio')
+        .replace(/Teeth/g, 'Teeth');
 }
 
 function getStepForProperty(prop) {
