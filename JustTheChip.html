@@ -758,7 +758,11 @@
                 // Get chipload range for tool diameter
                 const fzRange = this.getChiploadRange(D);
                 const toolFactor = this.material.toolChiploadFactors[this.tool.type] || 1.0;
-                let fz = (fzRange[0] + fzRange[1]) / 2 * this.aggressiveness * toolFactor;
+                
+                // Coating factor for chipload - better coatings allow more aggressive cutting
+                const coatingFactor = this.getCoatingChiploadFactor();
+                
+                let fz = (fzRange[0] + fzRange[1]) / 2 * this.aggressiveness * toolFactor * coatingFactor;
                 
                 // Get engagement parameters
                 const { ae, ap } = this.getEngagementParams(D);
@@ -1048,12 +1052,18 @@
                 let baseEfficiency = 0.8; // Default efficiency
                 
                 // Coating adjustments
-                if (this.tool.coating === 'TiAlN') {
-                    baseEfficiency = 0.85;
-                } else if (this.tool.coating === 'TiN') {
-                    baseEfficiency = 0.82;
+                if (this.tool.coating === 'tialn') {
+                    baseEfficiency = 0.85; // TiAlN provides best efficiency
+                } else if (this.tool.coating === 'alcrn') {
+                    baseEfficiency = 0.84; // AlCrN similar to TiAlN
+                } else if (this.tool.coating === 'ticn') {
+                    baseEfficiency = 0.83; // TiCN good performance
+                } else if (this.tool.coating === 'tin') {
+                    baseEfficiency = 0.82; // TiN standard coating
+                } else if (this.tool.coating === 'diamond_like') {
+                    baseEfficiency = 0.87; // DLC excellent for non-ferrous
                 } else if (this.tool.coating === 'uncoated') {
-                    baseEfficiency = 0.75;
+                    baseEfficiency = 0.75; // Lower efficiency uncoated
                 }
                 
                 // Tool type adjustments
@@ -1064,6 +1074,25 @@
                 }
                 
                 return baseEfficiency;
+            }
+            
+            getCoatingChiploadFactor() {
+                // Coating-specific chipload multipliers - better coatings allow more aggressive cutting
+                switch (this.tool.coating) {
+                    case 'diamond_like':
+                        return 1.15; // DLC excellent for non-ferrous materials
+                    case 'tialn':
+                        return 1.12; // TiAlN good for high-speed machining
+                    case 'alcrn':
+                        return 1.10; // AlCrN excellent heat resistance
+                    case 'ticn':
+                        return 1.08; // TiCN good wear resistance
+                    case 'tin':
+                        return 1.05; // TiN standard coating improvement
+                    case 'uncoated':
+                    default:
+                        return 1.0; // Baseline for uncoated tools
+                }
             }
             
             getSpindlePowerAtRPM(rpm) {
@@ -1269,7 +1298,7 @@
                 diameter_mm: 6,
                 flutes: 2,
                 material: 'carbide',
-                coating: 'TiAlN',
+                coating: 'tialn',
                 stickout_mm: 20,
                 shank_mm: 6,
                 // Additional parameters for special tools
@@ -1607,6 +1636,22 @@
                                             >
                                                 <option value="carbide">Carbide</option>
                                                 <option value="hss">HSS</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="text-sm text-gray-600">Coating</label>
+                                            <select 
+                                                value={tool.coating}
+                                                onChange={(e) => setTool({...tool, coating: e.target.value})}
+                                                className="w-full px-2 py-1 border rounded"
+                                            >
+                                                <option value="uncoated">Uncoated</option>
+                                                <option value="tin">TiN (Titanium Nitride)</option>
+                                                <option value="ticn">TiCN (Titanium Carbonitride)</option>
+                                                <option value="tialn">TiAlN (Titanium Aluminum Nitride)</option>
+                                                <option value="alcrn">AlCrN (Aluminum Chromium Nitride)</option>
+                                                <option value="diamond_like">DLC (Diamond-Like Carbon)</option>
                                             </select>
                                         </div>
                                     </div>
