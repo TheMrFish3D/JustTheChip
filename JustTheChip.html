@@ -1181,15 +1181,19 @@
                 // Frequency ratio
                 const freqRatio = cuttingFrequency / naturalFreq;
                 
-                // Dynamic amplification factor (simplified single DOF model)
-                const denominator = Math.sqrt(
-                    Math.pow(1 - freqRatio * freqRatio, 2) + 
-                    Math.pow(2 * dampingRatio * freqRatio, 2)
-                );
-                const dynamicAmplification = 1 / denominator;
-                
-                // Dynamic rigidity factor (inverse of amplification)
-                const dynamicRigidityFactor = 1 / dynamicAmplification;
+                // Dynamic rigidity factor (corrected implementation)
+                let dynamicRigidityFactor;
+                if (freqRatio > 2.0) {
+                    // High frequency operation - excellent dynamic rigidity
+                    dynamicRigidityFactor = 0.95;
+                } else {
+                    // Calculate from frequency response
+                    const denominator = Math.sqrt(
+                        Math.pow(1 - freqRatio * freqRatio, 2) + 
+                        Math.pow(2 * dampingRatio * freqRatio, 2)
+                    );
+                    dynamicRigidityFactor = 1 / Math.max(denominator, 1.0);
+                }
                 
                 // Apply dynamic factor to static rigidity
                 const effectiveRigidity = this.machine.K_rigidity * dynamicRigidityFactor;
@@ -1203,8 +1207,7 @@
                     effective_rigidity: effectiveRigidity,
                     cutting_frequency_hz: cuttingFrequency,
                     natural_frequency_hz: naturalFreq,
-                    frequency_ratio: freqRatio,
-                    dynamic_amplification: dynamicAmplification
+                    frequency_ratio: freqRatio
                 };
             }
             
