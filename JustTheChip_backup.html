@@ -1825,10 +1825,6 @@
             // Layout style state
             const [layoutStyle, setLayoutStyle] = useState('integrated');
             
-            // State for different layouts
-            const [activeTab, setActiveTab] = useState('machine');
-            const [openSections, setOpenSections] = useState(['spindle']);
-            
             // State management
             const [units, setUnits] = useState('metric');
             const [selectedMachine, setSelectedMachine] = useState('printnc');
@@ -2507,6 +2503,8 @@
             );
             
             const renderTabbedLayout = () => {
+                const [activeTab, setActiveTab] = useState('machine');
+                
                 const tabs = [
                     { id: 'machine', label: '🔧 Machine & Spindle', icon: '🔧' },
                     { id: 'tool', label: '⚙️ Tool Setup', icon: '⚙️' },
@@ -2635,6 +2633,8 @@
             );
             
             const renderAccordionLayout = () => {
+                const [openSections, setOpenSections] = useState(['spindle']);
+                
                 const toggleSection = (section) => {
                     setOpenSections(prev => 
                         prev.includes(section) 
@@ -2759,6 +2759,339 @@
                     
                     {/* Main Content - Dynamic Layout */}
                     {renderCurrentLayout()}
+                </div>
+                                {/* Spindle Configuration */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="font-semibold mb-3">Spindle Configuration</h3>
+                                    <div className="space-y-2">
+                                        <div>
+                                            <label className="text-sm text-gray-600">Power (kW)</label>
+                                            <input 
+                                                type="number"
+                                                value={spindle.rated_power_kW}
+                                                onChange={(e) => setSpindle({...spindle, rated_power_kW: parseFloat(e.target.value)})}
+                                                className="w-full px-2 py-1 border rounded"
+                                                step="0.1"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="text-sm text-gray-600">Min RPM</label>
+                                                <input 
+                                                    type="number"
+                                                    value={spindle.rpm_min}
+                                                    onChange={(e) => setSpindle({...spindle, rpm_min: parseInt(e.target.value)})}
+                                                    className="w-full px-2 py-1 border rounded"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-sm text-gray-600">Max RPM</label>
+                                                <input 
+                                                    type="number"
+                                                    value={spindle.rpm_max}
+                                                    onChange={(e) => setSpindle({...spindle, rpm_max: parseInt(e.target.value)})}
+                                                    className="w-full px-2 py-1 border rounded"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Tool Configuration */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="font-semibold mb-3">Tool Configuration</h3>
+                                    <div className="space-y-2">
+                                        <div>
+                                            <label className="text-sm text-gray-600">Tool Type</label>
+                                            <select 
+                                                value={tool.type}
+                                                onChange={(e) => setTool({...tool, type: e.target.value})}
+                                                className="w-full px-2 py-1 border rounded"
+                                            >
+                                                <optgroup label="Common">
+                                                    <option value="endmill_flat">🔧 Flat End Mill</option>
+                                                    <option value="endmill_ball">⚪ Ball End Mill</option>
+                                                    <option value="drill">⫸ Drill Bit</option>
+                                                </optgroup>
+                                                <optgroup label="Specialized">
+                                                    <option value="chamfer">⟋ Chamfer Mill</option>
+                                                    <option value="vbit">▼ V-Bit / V-Carve</option>
+                                                    <option value="facemill">⬡ Face Mill (Insert)</option>
+                                                    <option value="threadmill">⟿ Thread Mill</option>
+                                                    <option value="tapered">⩙ Tapered End Mill</option>
+                                                </optgroup>
+                                                <optgroup label="Advanced">
+                                                    <option value="boring">○ Boring Bar</option>
+                                                    <option value="slitting">⊕ Slitting Saw</option>
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                        
+                                        {/* Dynamic tool parameters */}
+                                        {renderToolParameters()}
+                                        
+                                        <div>
+                                            <label className="text-sm text-gray-600">Material</label>
+                                            <select 
+                                                value={tool.material}
+                                                onChange={(e) => setTool({...tool, material: e.target.value})}
+                                                className="w-full px-2 py-1 border rounded"
+                                            >
+                                                <option value="carbide">Carbide</option>
+                                                <option value="hss">HSS</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="text-sm text-gray-600">Coating</label>
+                                            <select 
+                                                value={tool.coating}
+                                                onChange={(e) => setTool({...tool, coating: e.target.value})}
+                                                className="w-full px-2 py-1 border rounded"
+                                            >
+                                                <option value="uncoated">Uncoated</option>
+                                                <option value="tin">TiN (Titanium Nitride)</option>
+                                                <option value="ticn">TiCN (Titanium Carbonitride)</option>
+                                                <option value="tialn">TiAlN (Titanium Aluminum Nitride)</option>
+                                                <option value="alcrn">AlCrN (Aluminum Chromium Nitride)</option>
+                                                <option value="diamond_like">DLC (Diamond-Like Carbon)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Cut Types */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="font-semibold mb-3">Cut Types</h3>
+                                    <div className="space-y-2">
+                                        {getAvailableCutTypes().map(cut => (
+                                            <label key={cut.key} className="flex items-center">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={selectedCutTypes.includes(cut.key)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedCutTypes([...selectedCutTypes, cut.key]);
+                                                        } else {
+                                                            setSelectedCutTypes(selectedCutTypes.filter(t => t !== cut.key));
+                                                        }
+                                                    }}
+                                                    className="mr-2"
+                                                />
+                                                {cut.name}
+                                            </label>
+                                        ))}
+                                        {getAvailableCutTypes().length === 0 && (
+                                            <p className="text-sm text-gray-500">Select a tool type to see available operations</p>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Materials */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="font-semibold mb-3">Materials</h3>
+                                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                                        {Object.entries(MATERIALS).map(([key, mat]) => (
+                                            <label key={key} className="flex items-center">
+                                                <input 
+                                                    type="checkbox"
+                                                    checked={selectedMaterials.includes(key)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedMaterials([...selectedMaterials, key]);
+                                                        } else {
+                                                            setSelectedMaterials(selectedMaterials.filter(m => m !== key));
+                                                        }
+                                                    }}
+                                                    className="mr-2"
+                                                />
+                                                {mat.name}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                {/* Aggressiveness */}
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <h3 className="font-semibold mb-3">Aggressiveness: {aggressiveness.toFixed(1)}</h3>
+                                    <input 
+                                        type="range"
+                                        min="0.5"
+                                        max="1.5"
+                                        step="0.1"
+                                        value={aggressiveness}
+                                        onChange={(e) => setAggressiveness(parseFloat(e.target.value))}
+                                        className="w-full"
+                                    />
+                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                        <span>Conservative</span>
+                                        <span>Baseline</span>
+                                        <span>Aggressive</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Main Content - Results */}
+                        <div className="flex-1 overflow-y-auto p-6">
+                            {results.length > 0 ? (
+                                <div className="space-y-6">
+                                    {/* Summary Cards */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {results.map((result, idx) => (
+                                            <div key={idx} className="bg-white rounded-lg shadow-sm border p-4 animate-slideIn">
+                                                <div className="flex justify-between items-start mb-2 cursor-pointer result-card-header" 
+                                                     onClick={() => showDetailedCalculation(result, matId, tool, cutType)}>
+                                                    <div>
+                                                        <h4 className="font-semibold">{result.material}</h4>
+                                                        <p className="text-sm text-gray-600">
+                                                            {result.cutType} • {TOOL_TYPES[result.toolType].icon} {TOOL_TYPES[result.toolType].name}
+                                                        </p>
+                                                        <p className="text-xs text-blue-600">Click for detailed calculations</p>
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        {result.warnings.map((w, i) => (
+                                                            <span 
+                                                                key={i}
+                                                                className={`w-2 h-2 rounded-full ${
+                                                                    w.type === 'danger' ? 'bg-red-500' : 
+                                                                    w.type === 'warning' ? 'bg-yellow-500' : 
+                                                                    'bg-blue-500'
+                                                                }`}
+                                                                title={w.message}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                                    <div>
+                                                        <span className="text-gray-500 tooltip-term" data-term="RPM">RPM (n):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="rpm" data-value={result.rpm} data-min="6000" data-max="30000" data-recommended="15000" data-unit=" RPM">{result.rpm}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500 tooltip-term" data-term="Feed">Feed (Vf):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="feed" data-value={result.feed_mm_min} data-min="100" data-max="5000" data-recommended="1500" data-unit=" mm/min">{result.feed_mm_min} mm/min</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500 tooltip-term" data-term="Chipload">Chipload (fz):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="chipload" data-value={result.fz_mm} data-min="0.01" data-max="0.5" data-recommended="0.1" data-unit=" mm">{result.fz_mm.toFixed(3)} mm</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500 tooltip-term" data-term="MRR">MRR (Q):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="mrr" data-value={result.mrr_mm3_min} data-min="100" data-max="50000" data-recommended="5000" data-unit=" mm³/min">{result.mrr_mm3_min} mm³/min</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500 tooltip-term" data-term="WOC">WOC (ae):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="woc" data-value={result.ae_mm} data-min="0.1" data-max={tool.diameter_mm} data-recommended={tool.diameter_mm * 0.3} data-unit=" mm">{result.ae_mm.toFixed(1)} mm</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-gray-500 tooltip-term" data-term="DOC">DOC (ap):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="doc" data-value={result.ap_mm} data-min="0.1" data-max={tool.diameter_mm * 2} data-recommended={tool.diameter_mm * 0.5} data-unit=" mm">{result.ap_mm.toFixed(1)} mm</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="mt-3 pt-3 border-t">
+                                                    <div className="flex justify-between text-sm">
+                                                        <div>
+                                                            <span className="text-gray-500 tooltip-term" data-term="Power">Power (P):</span>
+                                                            <span className={`ml-2 font-medium result-value ${
+                                                                result.power_W > result.power_available_W * 0.9 ? 'text-red-600' : ''
+                                                            }`} data-param="power" data-value={result.power_W} data-min="100" data-max={result.power_available_W} data-recommended={result.power_available_W * 0.8} data-unit="W">
+                                                                {result.power_W}W / {result.power_available_W}W
+                                                            </span>
+                                                        </div>
+                                                        {result.deflection_mm > 0 && (
+                                                            <div>
+                                                                <span className="text-gray-500 tooltip-term" data-term="Deflection">Deflection (δ):</span>
+                                                                <span className={`ml-2 font-medium result-value ${
+                                                                    result.deflection_mm > 0.05 ? 'text-red-600' : 
+                                                                    result.deflection_mm > 0.02 ? 'text-yellow-600' : ''
+                                                                }`} data-param="deflection" data-value={result.deflection_mm} data-min="0" data-max="0.1" data-recommended="0.02" data-unit=" mm">
+                                                                    {result.deflection_mm.toFixed(3)} mm
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                
+                                                {result.warnings.length > 0 && (
+                                                    <div className="mt-3 pt-3 border-t">
+                                                        {result.warnings.map((w, i) => (
+                                                            <div key={i} className={`text-xs ${
+                                                                w.type === 'danger' ? 'text-red-600' : 
+                                                                w.type === 'warning' ? 'text-yellow-600' : 
+                                                                'text-blue-600'
+                                                            }`}>
+                                                                • {w.message}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {/* Detailed Table */}
+                                    <div className="bg-white rounded-lg shadow-sm border">
+                                        <div className="p-4 border-b flex justify-between items-center">
+                                            <h3 className="font-semibold">Detailed Results</h3>
+                                            <button 
+                                                onClick={copyResultsAsCSV}
+                                                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                                            >
+                                                Copy as CSV
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th className="px-4 py-2 text-left">Material</th>
+                                                        <th className="px-4 py-2 text-left">Cut Type</th>
+                                                        <th className="px-4 py-2 text-left">Tool</th>
+                                                        <th className="px-4 py-2 text-right">RPM</th>
+                                                        <th className="px-4 py-2 text-right">Feed</th>
+                                                        <th className="px-4 py-2 text-right">Chipload</th>
+                                                        <th className="px-4 py-2 text-right">WOC</th>
+                                                        <th className="px-4 py-2 text-right">DOC</th>
+                                                        <th className="px-4 py-2 text-right">MRR</th>
+                                                        <th className="px-4 py-2 text-right">Power</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {results.map((result, idx) => (
+                                                        <tr key={idx} className="border-b hover:bg-gray-50">
+                                                            <td className="px-4 py-2">{result.material}</td>
+                                                            <td className="px-4 py-2">{result.cutType}</td>
+                                                            <td className="px-4 py-2">
+                                                                <span className="tool-icon">{TOOL_TYPES[result.toolType].icon}</span>
+                                                                {TOOL_TYPES[result.toolType].name}
+                                                            </td>
+                                                            <td className="px-4 py-2 text-right">{result.rpm}</td>
+                                                            <td className="px-4 py-2 text-right">{result.feed_mm_min}</td>
+                                                            <td className="px-4 py-2 text-right">{result.fz_mm.toFixed(4)}</td>
+                                                            <td className="px-4 py-2 text-right">{result.ae_mm.toFixed(2)}</td>
+                                                            <td className="px-4 py-2 text-right">{result.ap_mm.toFixed(2)}</td>
+                                                            <td className="px-4 py-2 text-right">{result.mrr_mm3_min}</td>
+                                                            <td className="px-4 py-2 text-right">{result.power_W}W</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-center">
+                                        <p className="text-gray-500 mb-2">Select materials and cut types to see results</p>
+                                        <p className="text-sm text-gray-400">Configure your machine, spindle, and tool in the left panel</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             );
         }
