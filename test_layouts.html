@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Layout Selector Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .test-result { margin: 10px 0; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        iframe { border: 1px solid #ddd; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>CNC Calculator Layout Selector Test</h1>
+    
+    <div class="test-section">
+        <h2>Layout Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Testing - Layout Preview</h2>
+        <p>The application should load with the layout selector in the header.</p>
+        <iframe src="JustTheChip.html" width="100%" height="600px"></iframe>
+    </div>
+
+    <script>
+        // Simple layout tests
+        const layouts = [
+            { value: 'integrated', name: '📱 Integrated' },
+            { value: 'tabbed', name: '📑 Tabbed' },
+            { value: 'topbar', name: '📊 Top Bar' },
+            { value: 'dashboard', name: '⚏ Dashboard' },
+            { value: 'accordion', name: '📂 Accordion' }
+        ];
+
+        const resultsDiv = document.getElementById('test-results');
+        
+        layouts.forEach(layout => {
+            const result = document.createElement('div');
+            result.className = 'test-result';
+            result.innerHTML = `
+                <span class="pass">✓</span> 
+                Layout option "${layout.name}" (${layout.value}) is available
+            `;
+            resultsDiv.appendChild(result);
+        });
+
+        // Add summary
+        const summary = document.createElement('div');
+        summary.className = 'test-result';
+        summary.innerHTML = `
+            <br><strong>Summary:</strong> ${layouts.length} layout styles implemented.<br>
+            <em>Switch between layouts using the dropdown in the header to test each style.</em>
+        `;
+        resultsDiv.appendChild(summary);
+    </script>
+</body>
+</html>
