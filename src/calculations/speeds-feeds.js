@@ -45,7 +45,8 @@ export class SpeedsFeedsCalculator {
         // Get chipload range and calculate feed per tooth
         const fzRange = this.getChiploadRange(D);
         const toolFactor = this.material.toolChiploadFactors[this.tool.type] || 1.0;
-        let fz = (fzRange[0] + fzRange[1]) / 2 * this.aggressiveness * toolFactor;
+        const coatingFactor = this.getCoatingChiploadFactor();
+        let fz = (fzRange[0] + fzRange[1]) / 2 * this.aggressiveness * toolFactor * coatingFactor;
         
         // Get engagement parameters with user DOC override
         const { ae, ap } = this.getEngagementParams(D);
@@ -431,5 +432,24 @@ export class SpeedsFeedsCalculator {
         }
         
         return availablePower * efficiency;
+    }
+    
+    getCoatingChiploadFactor() {
+        // Coating-specific chipload multipliers - better coatings allow more aggressive cutting
+        switch (this.tool.coating) {
+            case 'diamond_like':
+                return 1.15; // DLC excellent for non-ferrous materials
+            case 'tialn':
+                return 1.12; // TiAlN good for high-speed machining
+            case 'alcrn':
+                return 1.10; // AlCrN excellent heat resistance
+            case 'ticn':
+                return 1.08; // TiCN good wear resistance
+            case 'tin':
+                return 1.05; // TiN standard coating improvement
+            case 'uncoated':
+            default:
+                return 1.0; // Baseline for uncoated tools
+        }
     }
 }

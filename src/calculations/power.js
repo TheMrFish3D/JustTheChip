@@ -32,11 +32,14 @@ export function calculateCuttingPower(params) {
     // Tool geometry factor
     const toolFactor = getToolPowerFactor(tool, cutType);
     
+    // Tool efficiency factor (includes coating effects)
+    const toolEfficiency = getToolEfficiency(tool);
+    
     // Machine rigidity factor
     const rigidityFactor = machine.K_rigidity || 1.0;
     
-    // Calculate net cutting power
-    const netCuttingPower = baseCuttingPower * toolFactor * rigidityFactor;
+    // Calculate net cutting power (applying efficiency to reduce power requirement)
+    const netCuttingPower = baseCuttingPower * toolFactor * rigidityFactor / toolEfficiency;
     
     // Add spindle losses (empirical values)
     const spindleLosses = calculateSpindleLosses(rpm, params.spindle);
@@ -301,4 +304,37 @@ function getToolThermalLimit(tool) {
     const thermalCapacityPerArea = 0.5; // W/mm²
     
     return toolArea * thermalCapacityPerArea;
+}
+
+/**
+ * Get tool efficiency based on material and coating
+ * @param {Object} tool - Tool configuration
+ * @returns {number} - Tool efficiency (0.0 to 1.0)
+ */
+function getToolEfficiency(tool) {
+    let baseEfficiency = 0.8; // Default efficiency
+    
+    // Coating adjustments
+    if (tool.coating === 'tialn') {
+        baseEfficiency = 0.85; // TiAlN provides best efficiency
+    } else if (tool.coating === 'alcrn') {
+        baseEfficiency = 0.84; // AlCrN similar to TiAlN
+    } else if (tool.coating === 'ticn') {
+        baseEfficiency = 0.83; // TiCN good performance
+    } else if (tool.coating === 'tin') {
+        baseEfficiency = 0.82; // TiN standard coating
+    } else if (tool.coating === 'diamond_like') {
+        baseEfficiency = 0.87; // DLC excellent for non-ferrous
+    } else if (tool.coating === 'uncoated') {
+        baseEfficiency = 0.75; // Lower efficiency uncoated
+    }
+    
+    // Tool type adjustments
+    if (tool.type === 'endmill_ball') {
+        baseEfficiency *= 0.9; // Ball end less efficient
+    } else if (tool.type === 'vbit') {
+        baseEfficiency *= 0.85; // V-bits less efficient
+    }
+    
+    return baseEfficiency;
 }
