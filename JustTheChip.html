@@ -904,6 +904,31 @@
                     'general': '< 0.02mm', 
                     'rough': '< 0.05mm'
                 }
+            },
+            'Power': {
+                fullName: 'Spindle Power Required',
+                description: 'Electrical power needed from the spindle motor to maintain cutting operations.',
+                formula: 'P = (SEC × MRR) / η + P_losses',
+                variables: {
+                    'SEC': 'Specific cutting energy (J/mm³)',
+                    'MRR': 'Material removal rate (mm³/min)',
+                    'η': 'Overall machine efficiency (0.7-0.9)',
+                    'P_losses': 'Bearing, drive, and spindle losses'
+                },
+                safetyNotes: 'Exceeding spindle power causes motor stall, poor surface finish, and potential damage.',
+                units: 'Watts (W) or kilowatts (kW)'
+            },
+            'Force': {
+                fullName: 'Cutting Force',
+                description: 'Mechanical force exerted by the tool on the workpiece during cutting.',
+                formula: 'F = K × A × adjustment_factors',
+                variables: {
+                    'K': 'Material force coefficient (N/mm²)',
+                    'A': 'Chip cross-sectional area (mm²)',
+                    'adjustment_factors': 'Tool geometry, coating, and engagement corrections'
+                },
+                safetyNotes: 'High cutting forces can cause tool breakage, workpiece deflection, and machine vibration.',
+                units: 'Newtons (N)'
             }
         };
 
@@ -1199,9 +1224,9 @@
                             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">
                                 <h4 style="color: #16a34a; margin-bottom: 8px;">✅ Chipload Analysis</h4>
                                 <div style="font-size: 14px;">
-                                    Target range: ${this.getChiploadRange(tool.diameter_mm, materialData)} mm/tooth<br>
+                                    Target range: ${DetailedModal.getChiploadRange(tool.diameter_mm, materialData)} mm/tooth<br>
                                     Actual: ${result.fz_mm.toFixed(3)} mm/tooth<br>
-                                    Status: ${this.getChiploadStatus(result.fz_mm, tool.diameter_mm, materialData)}
+                                    Status: ${DetailedModal.getChiploadStatus(result.fz_mm, tool.diameter_mm, materialData)}
                                 </div>
                             </div>
                             
