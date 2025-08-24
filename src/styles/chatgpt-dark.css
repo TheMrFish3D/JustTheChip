@@ -1,0 +1,31 @@
+/* ChatGPT-style dark theme with Claude fonts */
+@import url('https://fonts.cdnfonts.com/css/tiempos');
+@import url('https://fonts.cdnfonts.com/css/styrenea');
+@import url('https://fonts.cdnfonts.com/css/copernicus');
+
+:root {
+  --bg-primary: #343541;
+  --bg-secondary: #444654;
+  --text-primary: #ececf1;
+  --accent: #10a37f;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Tiempos', 'Styrene A', 'Copernicus', sans-serif;
+}
+
+button, input, select, textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid #565869;
+}
+
+button:hover {
+  background-color: #565869;
+}
+
+a {
+  color: var(--accent);
+}
