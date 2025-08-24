@@ -1454,15 +1454,21 @@
         
         // Layout switching functions
         let currentLayout = 'integrated';
+        let originalInputSection = null;
+        let originalResultsSection = null;
         
         function changeLayout() {
             const selector = document.getElementById('layoutSelector');
             const newLayout = selector.value;
             currentLayout = newLayout;
             
+            // Store original sections if not already stored
+            if (!originalInputSection) {
+                originalInputSection = document.querySelector('.input-section').cloneNode(true);
+                originalResultsSection = document.querySelector('.results-section').cloneNode(true);
+            }
+            
             const gridContainer = document.querySelector('.grid');
-            const inputSection = document.querySelector('.input-section');
-            const resultsSection = document.querySelector('.results-section');
             
             // Reset grid classes
             gridContainer.className = 'grid';
@@ -1490,15 +1496,19 @@
         function renderIntegratedLayout() {
             const gridContainer = document.querySelector('.grid');
             gridContainer.className = 'grid';
-            // Default layout - no changes needed
+            
+            // Restore original two-column layout
+            gridContainer.innerHTML = '';
+            gridContainer.appendChild(originalInputSection.cloneNode(true));
+            gridContainer.appendChild(originalResultsSection.cloneNode(true));
+            
+            // Restore event handlers
+            restoreEventHandlers();
         }
         
         function renderTabbedLayout() {
             const gridContainer = document.querySelector('.grid');
             gridContainer.className = 'grid tabbed';
-            
-            const inputSection = document.querySelector('.input-section');
-            const resultsSection = document.querySelector('.results-section');
             
             // Create tab container
             const tabContainer = document.createElement('div');
@@ -1518,20 +1528,20 @@
             const configTab = tabContainer.querySelector('#config-tab');
             const resultsTab = tabContainer.querySelector('#results-tab');
             
-            configTab.appendChild(inputSection.cloneNode(true));
-            resultsTab.appendChild(resultsSection.cloneNode(true));
+            configTab.appendChild(originalInputSection.cloneNode(true));
+            resultsTab.appendChild(originalResultsSection.cloneNode(true));
             
             // Replace grid content
             gridContainer.innerHTML = '';
             gridContainer.appendChild(tabContainer);
+            
+            // Restore event handlers
+            restoreEventHandlers();
         }
         
         function renderTopBarLayout() {
             const gridContainer = document.querySelector('.grid');
             gridContainer.className = 'grid topbar';
-            
-            const inputSection = document.querySelector('.input-section');
-            const resultsSection = document.querySelector('.results-section');
             
             // Create top bar with key controls
             const topBar = document.createElement('div');
@@ -1549,15 +1559,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Tool:</label>
-                        <select id="topbar-tool" onchange="syncControl('toolType', this.value)">
-                            <option value="end_mill_2f">2-Flute End Mill</option>
-                            <option value="end_mill_3f">3-Flute End Mill</option>
-                            <option value="end_mill_4f" selected>4-Flute End Mill</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Diameter (mm):</label>
+                        <label>Tool Diameter (mm):</label>
                         <input type="number" id="topbar-diameter" value="6" min="0.5" max="25" step="0.5" onchange="syncControl('toolDiameter', this.value)">
                     </div>
                     <div class="form-group">
@@ -1569,49 +1571,71 @@
             
             gridContainer.innerHTML = '';
             gridContainer.appendChild(topBar);
-            gridContainer.appendChild(inputSection.cloneNode(true));
-            gridContainer.appendChild(resultsSection.cloneNode(true));
+            gridContainer.appendChild(originalInputSection.cloneNode(true));
+            gridContainer.appendChild(originalResultsSection.cloneNode(true));
+            
+            // Restore event handlers
+            restoreEventHandlers();
         }
         
         function renderDashboardLayout() {
             const gridContainer = document.querySelector('.grid');
             gridContainer.className = 'grid dashboard';
             
-            const inputSection = document.querySelector('.input-section');
-            const resultsSection = document.querySelector('.results-section');
+            // Create dashboard cards
+            const inputClone = originalInputSection.cloneNode(true);
+            const machineConfig = inputClone.querySelector('.machine-config');
+            const docOverride = inputClone.querySelector('.doc-override');
             
-            // Split input section into multiple cards
-            const configSections = [
-                { title: '🏭 Machine Setup', content: inputSection.querySelector('.machine-config') },
-                { title: '🔧 Tool Configuration', content: inputSection.querySelector('.form-group') },
-                { title: '🎯 DOC Override', content: inputSection.querySelector('.doc-override') },
-                { title: '📊 Results', content: resultsSection }
+            const cards = [
+                { title: '🏭 Machine Setup', content: machineConfig },
+                { title: '🎯 DOC Override', content: docOverride },
+                { title: '📊 Results', content: originalResultsSection.cloneNode(true) }
             ];
             
             gridContainer.innerHTML = '';
-            configSections.forEach(section => {
-                if (section.content) {
-                    const card = document.createElement('div');
-                    card.className = 'input-section';
-                    card.innerHTML = `<h2>${section.title}</h2>`;
-                    card.appendChild(section.content.cloneNode(true));
-                    gridContainer.appendChild(card);
+            cards.forEach(card => {
+                if (card.content) {
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'input-section';
+                    cardDiv.innerHTML = `<h2>${card.title}</h2>`;
+                    cardDiv.appendChild(card.content);
+                    gridContainer.appendChild(cardDiv);
                 }
             });
+            
+            // Add remaining input content
+            const remainingCard = document.createElement('div');
+            remainingCard.className = 'input-section';
+            remainingCard.innerHTML = '<h2>🔧 Tool & Materials</h2>';
+            
+            // Copy remaining content
+            const remainingContent = inputClone.cloneNode(true);
+            // Remove already used sections
+            const machineToRemove = remainingContent.querySelector('.machine-config');
+            const docToRemove = remainingContent.querySelector('.doc-override');
+            if (machineToRemove) machineToRemove.remove();
+            if (docToRemove) docToRemove.remove();
+            
+            remainingCard.appendChild(remainingContent);
+            gridContainer.appendChild(remainingCard);
+            
+            // Restore event handlers
+            restoreEventHandlers();
         }
         
         function renderAccordionLayout() {
             const gridContainer = document.querySelector('.grid');
             gridContainer.className = 'grid accordion';
             
-            const inputSection = document.querySelector('.input-section');
-            const resultsSection = document.querySelector('.results-section');
+            const inputClone = originalInputSection.cloneNode(true);
+            const machineConfig = inputClone.querySelector('.machine-config');
+            const docOverride = inputClone.querySelector('.doc-override');
             
             const sections = [
-                { title: '🏭 Machine Configuration', id: 'machine-acc', content: inputSection.querySelector('.machine-config') },
-                { title: '🔧 Tool Setup', id: 'tool-acc', content: inputSection.querySelector('.form-group') },
-                { title: '🎯 DOC Override', id: 'doc-acc', content: inputSection.querySelector('.doc-override') },
-                { title: '📊 Results & Analysis', id: 'results-acc', content: resultsSection, active: true }
+                { title: '🏭 Machine Configuration', id: 'machine-acc', content: machineConfig },
+                { title: '🎯 DOC Override', id: 'doc-acc', content: docOverride },
+                { title: '📊 Results & Analysis', id: 'results-acc', content: originalResultsSection.cloneNode(true), active: true }
             ];
             
             gridContainer.innerHTML = '';
@@ -1628,8 +1652,71 @@
                     `;
                     
                     const content = accordion.querySelector('.accordion-content');
-                    content.appendChild(section.content.cloneNode(true));
+                    content.appendChild(section.content);
                     gridContainer.appendChild(accordion);
+                }
+            });
+            
+            // Add remaining content accordion
+            const remainingContent = inputClone.cloneNode(true);
+            const machineToRemove = remainingContent.querySelector('.machine-config');
+            const docToRemove = remainingContent.querySelector('.doc-override');
+            if (machineToRemove) machineToRemove.remove();
+            if (docToRemove) docToRemove.remove();
+            
+            if (remainingContent.children.length > 1) { // More than just the h2
+                const accordion = document.createElement('div');
+                accordion.className = 'accordion-section';
+                accordion.innerHTML = `
+                    <div class="accordion-header" onclick="toggleAccordion('tools-acc')">
+                        <span>🔧 Tool & Materials</span>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content" id="tools-acc"></div>
+                `;
+                
+                const content = accordion.querySelector('.accordion-content');
+                content.appendChild(remainingContent);
+                gridContainer.appendChild(accordion);
+            }
+            
+            // Restore event handlers
+            restoreEventHandlers();
+        }
+        
+        // Function to restore event handlers after layout changes
+        function restoreEventHandlers() {
+            // Re-bind machine type change handler
+            const machineSelect = document.getElementById('machineType');
+            if (machineSelect) {
+                machineSelect.onchange = updateMachineConfig;
+            }
+            
+            // Re-bind spindle type change handler
+            const spindleSelect = document.getElementById('spindleType');
+            if (spindleSelect) {
+                spindleSelect.onchange = function() { updateCalculations(); };
+            }
+            
+            // Re-bind tool type change handler
+            const toolSelect = document.getElementById('toolType');
+            if (toolSelect) {
+                toolSelect.onchange = function() { updateCalculations(); };
+            }
+            
+            // Re-bind other input handlers
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                if (input.id && !input.onchange && !input.onclick) {
+                    if (input.type === 'checkbox' && input.id.startsWith('material_')) {
+                        // Don't override existing handlers
+                    } else if (input.type === 'range' && input.id === 'aggressiveness') {
+                        input.oninput = function() { updateAggressiveness(this.value); };
+                    } else if (input.type === 'checkbox' && input.id === 'enableDOCOverride') {
+                        input.onchange = toggleDOCOverride;
+                    } else {
+                        input.onchange = function() { updateCalculations(); };
+                    }
                 }
             });
         }
@@ -1663,6 +1750,10 @@
 
         // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
+            // Store original content for layout switching
+            originalInputSection = document.querySelector('.input-section').cloneNode(true);
+            originalResultsSection = document.querySelector('.results-section').cloneNode(true);
+            
             updateCalculations();
         });
     </script>
