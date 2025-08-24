@@ -119,16 +119,16 @@
         
         /* Tab styles for tabbed layout */
         .tab-container {
-            background: white;
+            background: var(--theme-bg-secondary);
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px var(--theme-shadow);
             overflow: hidden;
         }
         
         .tab-nav {
             display: flex;
-            background: #f8fafc;
-            border-bottom: 1px solid #e5e7eb;
+            background: var(--theme-bg-tertiary);
+            border-bottom: 1px solid var(--theme-border);
         }
         
         .tab-button {
@@ -143,9 +143,9 @@
         }
         
         .tab-button.active {
-            background: white;
-            color: #3b82f6;
-            border-bottom: 2px solid #3b82f6;
+            background: var(--theme-bg-secondary);
+            color: var(--theme-accent-primary);
+            border-bottom: 2px solid var(--theme-accent-primary);
         }
         
         .tab-content {
@@ -162,10 +162,10 @@
         
         /* Top bar layout styles */
         .topbar-controls {
-            background: white;
+            background: var(--theme-bg-secondary);
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px var(--theme-shadow);
             margin-bottom: 20px;
         }
         
@@ -178,15 +178,15 @@
         
         /* Accordion styles */
         .accordion-section {
-            background: white;
+            background: var(--theme-bg-secondary);
             border-radius: 8px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px var(--theme-shadow);
             overflow: hidden;
         }
         
         .accordion-header {
-            background: #f8fafc;
+            background: var(--theme-bg-tertiary);
             padding: 15px 20px;
             cursor: pointer;
             border-bottom: 1px solid #e5e7eb;
@@ -225,18 +225,18 @@
         }
         
         .input-section {
-            background: white;
+            background: var(--theme-bg-secondary);
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px var(--theme-shadow);
             height: fit-content;
         }
         
         .results-section {
-            background: white;
+            background: var(--theme-bg-secondary);
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px var(--theme-shadow);
         }
         
         .form-group {
@@ -345,13 +345,13 @@
             width: 26px;
             left: 4px;
             bottom: 4px;
-            background-color: white;
+            background-color: var(--theme-text-inverse);
             transition: .4s;
             border-radius: 50%;
         }
         
         input:checked + .toggle-slider {
-            background-color: #3b82f6;
+            background-color: var(--theme-accent-primary);
         }
         
         input:checked + .toggle-slider:before {
@@ -513,17 +513,18 @@
         
         .tooltip-container {
             position: absolute;
-            background: white;
-            border: 1px solid #e5e7eb;
+            background: var(--theme-bg-secondary);
+            border: 1px solid var(--theme-border);
             border-radius: 8px;
             padding: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 25px var(--theme-shadow);
             max-width: 350px;
             z-index: 1000;
             font-size: 14px;
             line-height: 1.4;
             display: none;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--theme-text-primary);
         }
         
         .tooltip-header {
@@ -721,6 +722,23 @@
             --theme-success: #22c55e;
         }
 
+        /* Claude Theme - Dark with Orange Accents */
+        body.theme-claude {
+            --theme-bg-primary: #181818;
+            --theme-bg-secondary: #1f1f1f;
+            --theme-bg-tertiary: #2a2a2a;
+            --theme-text-primary: #ffffff;
+            --theme-text-secondary: #cccccc;
+            --theme-text-inverse: #181818;
+            --theme-accent-primary: #ff9500;
+            --theme-accent-secondary: #e6800e;
+            --theme-border: #404040;
+            --theme-shadow: rgba(255, 149, 0, 0.2);
+            --theme-warning: #ff9500;
+            --theme-danger: #ff4757;
+            --theme-success: #2ed573;
+        }
+
         /* Apply theme variables to existing styles */
         body {
             background-color: var(--theme-bg-primary);
@@ -813,6 +831,96 @@
         body.theme-cyberpunk .form-control:focus {
             box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
+
+        /* Settings Panel Styles */
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-panel {
+            background: var(--theme-bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px var(--theme-shadow);
+            border: 1px solid var(--theme-border);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--theme-border);
+        }
+
+        .settings-header h2 {
+            color: var(--theme-text-primary);
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--theme-text-secondary);
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .close-settings:hover {
+            background: var(--theme-bg-tertiary);
+            color: var(--theme-text-primary);
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section h3 {
+            color: var(--theme-text-primary);
+            margin: 0 0 15px 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .font-preview {
+            background: var(--theme-bg-tertiary);
+            border: 1px solid var(--theme-border);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            color: var(--theme-text-primary);
+        }
     </style>
 </head>
 <body>
@@ -825,31 +933,9 @@
                     <p>Enhanced with DOC Override, Interactive Tooltips & Validated Formulas</p>
                 </div>
                 <div class="header-controls">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="themeSelector" style="color: rgba(255, 255, 255, 0.9); font-size: 0.9rem;">Theme:</label>
-                        <select id="themeSelector" onchange="changeTheme()" style="margin-left: 10px;">
-                            <option value="default">🔵 Classic Blue</option>
-                            <option value="dark">🌙 Dark Pro</option>
-                            <option value="light">☀️ Clean Light</option>
-                            <option value="ocean">🌊 Ocean Breeze</option>
-                            <option value="forest">🌲 Forest Green</option>
-                            <option value="sunset">🌅 Sunset Orange</option>
-                            <option value="purple">🔮 Purple Haze</option>
-                            <option value="minimal">⚪ Minimal Gray</option>
-                            <option value="cyberpunk">⚡ Cyberpunk</option>
-                            <option value="industrial">🔧 Industrial</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label for="layoutSelector" style="color: rgba(255, 255, 255, 0.9); font-size: 0.9rem;">Layout:</label>
-                        <select id="layoutSelector" onchange="changeLayout()" style="margin-left: 10px;">
-                            <option value="integrated">📱 Integrated</option>
-                            <option value="tabbed">📑 Tabbed</option>
-                            <option value="topbar">📊 Top Bar</option>
-                            <option value="dashboard">⚙️ Dashboard</option>
-                            <option value="accordion">📂 Accordion</option>
-                        </select>
-                    </div>
+                    <button id="settingsButton" onclick="toggleSettings()" style="background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 6px; padding: 8px 15px; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        ⚙️ Settings
+                    </button>
                     <a href="help.html" style="color: rgba(255, 255, 255, 0.9); text-decoration: none; margin-left: 15px;">📚 Help</a>
                     <a href="JustTheChip.html" style="color: rgba(255, 255, 255, 0.9); text-decoration: none; margin-left: 15px;">🔗 Alt Version</a>
                 </div>
@@ -1095,6 +1181,90 @@
         </div>
     </div>
 
+    <!-- Settings Panel -->
+    <div id="settingsOverlay" class="settings-overlay" onclick="closeSettingsOnOverlay(event)">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h2>⚙️ Settings</h2>
+                <button class="close-settings" onclick="toggleSettings()">✕</button>
+            </div>
+            
+            <div class="settings-section">
+                <h3>🎨 Appearance</h3>
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="themeSelector">Theme:</label>
+                        <select id="themeSelector" onchange="changeTheme()" class="form-control">
+                            <option value="default">🔵 Classic Blue</option>
+                            <option value="dark">🌙 Dark Pro</option>
+                            <option value="light">☀️ Clean Light</option>
+                            <option value="ocean">🌊 Ocean Breeze</option>
+                            <option value="forest">🌲 Forest Green</option>
+                            <option value="sunset">🌅 Sunset Orange</option>
+                            <option value="purple">🔮 Purple Haze</option>
+                            <option value="minimal">⚪ Minimal Gray</option>
+                            <option value="cyberpunk">⚡ Cyberpunk</option>
+                            <option value="industrial">🔧 Industrial</option>
+                            <option value="claude">🤖 Claude</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="layoutSelector">Layout:</label>
+                        <select id="layoutSelector" onchange="changeLayout()" class="form-control">
+                            <option value="integrated">📱 Integrated</option>
+                            <option value="tabbed">📑 Tabbed</option>
+                            <option value="topbar">📊 Top Bar</option>
+                            <option value="dashboard">⚙️ Dashboard</option>
+                            <option value="accordion">📂 Accordion</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>🔤 Typography</h3>
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label for="fontFamily">Font Family:</label>
+                        <select id="fontFamily" onchange="changeFontFamily()" class="form-control">
+                            <option value="system">System Default</option>
+                            <option value="roboto">Roboto</option>
+                            <option value="opensans">Open Sans</option>
+                            <option value="lato">Lato</option>
+                            <option value="sourcecodepro">Source Code Pro</option>
+                            <option value="firacode">Fira Code</option>
+                            <option value="jetbrainsmono">JetBrains Mono</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fontSize">Font Size:</label>
+                        <select id="fontSize" onchange="changeFontSize()" class="form-control">
+                            <option value="small">Small (90%)</option>
+                            <option value="normal" selected>Normal (100%)</option>
+                            <option value="large">Large (110%)</option>
+                            <option value="xlarge">Extra Large (120%)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="font-preview" id="fontPreview">
+                    <strong>Preview:</strong> CNC Speeds & Feeds Calculator - 21,221 RPM @ 1,167 mm/min
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h3>💾 Preferences</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="savePreferences()" class="btn btn-primary">Save Preferences</button>
+                    <button onclick="loadPreferences()" class="btn btn-secondary">Load Saved</button>
+                    <button onclick="resetPreferences()" class="btn btn-danger">Reset to Default</button>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: var(--theme-text-secondary);">
+                    Preferences are automatically saved and will persist across browser sessions.
+                </p>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Enhanced Materials Database
         const ENHANCED_MATERIALS = {
@@ -1230,16 +1400,17 @@
                 tooltip.className = 'tooltip-container';
                 tooltip.style.cssText = `
                     position: absolute;
-                    background: white;
-                    border: 1px solid #e5e7eb;
+                    background: var(--theme-bg-secondary);
+                    border: 1px solid var(--theme-border);
                     border-radius: 8px;
                     padding: 12px;
-                    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                    box-shadow: 0 10px 25px var(--theme-shadow);
                     max-width: 350px;
                     z-index: 1000;
                     font-size: 14px;
                     line-height: 1.4;
                     display: none;
+                    color: var(--theme-text-primary);
                 `;
                 
                 if (type === 'parameter') {
@@ -1281,12 +1452,12 @@
                         <span style="color: ${statusColor}; margin-left: 8px;">${value}${unit}</span>
                     </div>
                     <div class="parameter-range" style="margin: 8px 0;">
-                        <div style="position: relative; height: 20px; background: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                        <div style="position: relative; height: 20px; background: var(--theme-bg-tertiary); border-radius: 10px; overflow: hidden;">
                             <div style="position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(to right, #ef4444, #f59e0b, #10b981); width: 100%;"></div>
-                            <div style="position: absolute; left: ${recommendedPerc}%; top: 0; width: 2px; height: 100%; background: white; border: 1px solid #333;"></div>
-                            <div style="position: absolute; left: ${percentage}%; top: 0; width: 8px; height: 100%; background: ${statusColor}; border: 2px solid white; margin-left: -4px; border-radius: 50%;"></div>
+                            <div style="position: absolute; left: ${recommendedPerc}%; top: 0; width: 2px; height: 100%; background: var(--theme-text-inverse); border: 1px solid var(--theme-text-primary);"></div>
+                            <div style="position: absolute; left: ${percentage}%; top: 0; width: 8px; height: 100%; background: ${statusColor}; border: 2px solid var(--theme-text-inverse); margin-left: -4px; border-radius: 50%;"></div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-top: 4px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--theme-text-secondary); margin-top: 4px;">
                             <span>Min: ${min}${unit}</span>
                             <span>Rec: ${recommended}${unit}</span>
                             <span>Max: ${max}${unit}</span>
@@ -1743,7 +1914,7 @@
             document.body.classList.remove(
                 'theme-default', 'theme-dark', 'theme-light', 'theme-ocean', 
                 'theme-forest', 'theme-sunset', 'theme-purple', 'theme-minimal', 
-                'theme-cyberpunk', 'theme-industrial'
+                'theme-cyberpunk', 'theme-industrial', 'theme-claude'
             );
             
             // Apply new theme class
@@ -1751,8 +1922,8 @@
                 document.body.classList.add(`theme-${newTheme}`);
             }
             
-            // Save theme preference
-            localStorage.setItem('preferredTheme', newTheme);
+            // Auto-save preferences
+            autoSavePreferences();
         }
         
         // Load saved theme on page load
@@ -1804,6 +1975,9 @@
                     renderAccordionLayout();
                     break;
             }
+            
+            // Auto-save preferences
+            autoSavePreferences();
         }
         
         function renderIntegratedLayout() {
@@ -2072,6 +2246,296 @@
             
             updateCalculations();
         });
+
+        // Settings Panel Functions
+        let settingsOpen = false;
+
+        function toggleSettings() {
+            const overlay = document.getElementById('settingsOverlay');
+            settingsOpen = !settingsOpen;
+            overlay.style.display = settingsOpen ? 'flex' : 'none';
+            
+            if (settingsOpen) {
+                // Update font preview when opening
+                updateFontPreview();
+            }
+        }
+
+        function closeSettingsOnOverlay(event) {
+            if (event.target === document.getElementById('settingsOverlay')) {
+                toggleSettings();
+            }
+        }
+
+        // Font Management Functions
+        let currentFontFamily = 'system';
+        let currentFontSize = 'normal';
+
+        function changeFontFamily() {
+            const selector = document.getElementById('fontFamily');
+            currentFontFamily = selector.value;
+            applyFontSettings();
+            updateFontPreview();
+            savePreferences();
+        }
+
+        function changeFontSize() {
+            const selector = document.getElementById('fontSize');
+            currentFontSize = selector.value;
+            applyFontSettings();
+            updateFontPreview();
+            savePreferences();
+        }
+
+        function applyFontSettings() {
+            const fontFamilies = {
+                'system': '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif',
+                'roboto': '"Roboto", sans-serif',
+                'opensans': '"Open Sans", sans-serif',
+                'lato': '"Lato", sans-serif',
+                'sourcecodepro': '"Source Code Pro", monospace',
+                'firacode': '"Fira Code", monospace',
+                'jetbrainsmono': '"JetBrains Mono", monospace'
+            };
+
+            const fontSizes = {
+                'small': '0.9',
+                'normal': '1.0',
+                'large': '1.1',
+                'xlarge': '1.2'
+            };
+
+            // Load Google Fonts if needed
+            if (['roboto', 'opensans', 'lato', 'sourcecodepro', 'firacode', 'jetbrainsmono'].includes(currentFontFamily)) {
+                loadGoogleFont(currentFontFamily);
+            }
+
+            document.body.style.fontFamily = fontFamilies[currentFontFamily];
+            document.body.style.fontSize = `${fontSizes[currentFontSize]}rem`;
+        }
+
+        function loadGoogleFont(fontName) {
+            const existingLink = document.getElementById('googleFont');
+            if (existingLink) {
+                existingLink.remove();
+            }
+
+            const fontUrls = {
+                'roboto': 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap',
+                'opensans': 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;700&display=swap',
+                'lato': 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap',
+                'sourcecodepro': 'https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500;700&display=swap',
+                'firacode': 'https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap',
+                'jetbrainsmono': 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap'
+            };
+
+            if (fontUrls[fontName]) {
+                const link = document.createElement('link');
+                link.id = 'googleFont';
+                link.rel = 'stylesheet';
+                link.href = fontUrls[fontName];
+                document.head.appendChild(link);
+            }
+        }
+
+        function updateFontPreview() {
+            const preview = document.getElementById('fontPreview');
+            const fontFamilies = {
+                'system': 'System Default',
+                'roboto': 'Roboto',
+                'opensans': 'Open Sans',
+                'lato': 'Lato',
+                'sourcecodepro': 'Source Code Pro',
+                'firacode': 'Fira Code',
+                'jetbrainsmono': 'JetBrains Mono'
+            };
+
+            const fontSizes = {
+                'small': 'Small (90%)',
+                'normal': 'Normal (100%)',
+                'large': 'Large (110%)',
+                'xlarge': 'Extra Large (120%)'
+            };
+
+            preview.innerHTML = `
+                <strong>Preview (${fontFamilies[currentFontFamily]} - ${fontSizes[currentFontSize]}):</strong><br>
+                CNC Speeds & Feeds Calculator - 21,221 RPM @ 1,167 mm/min<br>
+                <small>0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz</small>
+            `;
+        }
+
+        // Preferences Management with localStorage
+        function savePreferences() {
+            const preferences = {
+                theme: currentTheme,
+                layout: currentLayout,
+                fontFamily: currentFontFamily,
+                fontSize: currentFontSize,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                localStorage.setItem('cnc-calculator-preferences', JSON.stringify(preferences));
+                
+                // Show feedback - check if called from button click
+                if (window.event && window.event.target) {
+                    const btn = window.event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ Saved!';
+                    btn.style.background = 'var(--theme-success)';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                }
+            } catch (error) {
+                console.warn('Could not save preferences:', error);
+                // Only show alert if called from manual save button
+                if (window.event && window.event.target) {
+                    alert('Could not save preferences. Local storage may be disabled.');
+                }
+            }
+        }
+
+        function loadPreferences() {
+            try {
+                const saved = localStorage.getItem('cnc-calculator-preferences');
+                if (saved) {
+                    const preferences = JSON.parse(saved);
+                    
+                    // Apply preferences
+                    if (preferences.theme) {
+                        currentTheme = preferences.theme;
+                        document.getElementById('themeSelector').value = preferences.theme;
+                        changeTheme();
+                    }
+                    
+                    if (preferences.layout) {
+                        currentLayout = preferences.layout;
+                        document.getElementById('layoutSelector').value = preferences.layout;
+                        changeLayout();
+                    }
+                    
+                    if (preferences.fontFamily) {
+                        currentFontFamily = preferences.fontFamily;
+                        document.getElementById('fontFamily').value = preferences.fontFamily;
+                        applyFontSettings();
+                    }
+                    
+                    if (preferences.fontSize) {
+                        currentFontSize = preferences.fontSize;
+                        document.getElementById('fontSize').value = preferences.fontSize;
+                        applyFontSettings();
+                    }
+
+                    updateFontPreview();
+                    
+                    // Show feedback - check if called from button click
+                    if (window.event && window.event.target) {
+                        const btn = window.event.target;
+                        const originalText = btn.textContent;
+                        btn.textContent = '✅ Loaded!';
+                        btn.style.background = 'var(--theme-success)';
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.style.background = '';
+                        }, 2000);
+                    }
+                } else {
+                    alert('No saved preferences found.');
+                }
+            } catch (error) {
+                console.warn('Could not load preferences:', error);
+                alert('Could not load preferences.');
+            }
+        }
+
+        function resetPreferences() {
+            if (confirm('Reset all preferences to default? This cannot be undone.')) {
+                // Clear localStorage
+                try {
+                    localStorage.removeItem('cnc-calculator-preferences');
+                } catch (error) {
+                    console.warn('Could not clear preferences:', error);
+                }
+
+                // Reset to defaults
+                currentTheme = 'default';
+                currentLayout = 'integrated';
+                currentFontFamily = 'system';
+                currentFontSize = 'normal';
+
+                // Update UI
+                document.getElementById('themeSelector').value = 'default';
+                document.getElementById('layoutSelector').value = 'integrated';
+                document.getElementById('fontFamily').value = 'system';
+                document.getElementById('fontSize').value = 'normal';
+
+                // Apply changes
+                changeTheme();
+                changeLayout();
+                applyFontSettings();
+                updateFontPreview();
+
+                // Show feedback - check if called from button click
+                if (window.event && window.event.target) {
+                    const btn = window.event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = '✅ Reset!';
+                    btn.style.background = 'var(--theme-success)';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                }
+            }
+        }
+
+        // Auto-load preferences on page load
+        function autoLoadPreferences() {
+            try {
+                const saved = localStorage.getItem('cnc-calculator-preferences');
+                if (saved) {
+                    const preferences = JSON.parse(saved);
+                    
+                    if (preferences.theme) {
+                        currentTheme = preferences.theme;
+                        document.getElementById('themeSelector').value = preferences.theme;
+                        changeTheme();
+                    }
+                    
+                    if (preferences.layout) {
+                        currentLayout = preferences.layout;
+                        document.getElementById('layoutSelector').value = preferences.layout;
+                        changeLayout();
+                    }
+                    
+                    if (preferences.fontFamily) {
+                        currentFontFamily = preferences.fontFamily;
+                        document.getElementById('fontFamily').value = preferences.fontFamily;
+                        applyFontSettings();
+                    }
+                    
+                    if (preferences.fontSize) {
+                        currentFontSize = preferences.fontSize;
+                        document.getElementById('fontSize').value = preferences.fontSize;
+                        applyFontSettings();
+                    }
+                }
+            } catch (error) {
+                console.warn('Could not auto-load preferences:', error);
+            }
+        }
+
+        // Auto-save preferences when settings change
+        function autoSavePreferences() {
+            setTimeout(() => {
+                savePreferences();
+            }, 500);
+        }
+
+        // Load preferences when page loads
+        document.addEventListener('DOMContentLoaded', autoLoadPreferences);
     </script>
 </body>
 </html>
