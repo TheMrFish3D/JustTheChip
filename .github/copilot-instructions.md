@@ -1,24 +1,26 @@
 # JustTheChip - CNC Speeds & Feeds Calculator
 
-JustTheChip is a comprehensive CNC machining calculator with dual architecture: a single-file React application (original) and a new modular system (v2.0). Both versions provide optimal CNC machining parameters (speeds and feeds) for various materials, cutting tools, and operations. The applications run entirely in the browser and provide real-time calculations with warnings and recommendations.
+JustTheChip is a comprehensive CNC machining calculator with a single main application (index.html) and a modular development version (src/). The application provides optimal CNC machining parameters (speeds and feeds) for various materials, cutting tools, and operations. It runs entirely in the browser and provides real-time calculations with warnings and recommendations.
+
+**CRITICAL RULE: NO REDUNDANT COPIES** - There should be only ONE main calculator page (index.html). Do not create additional HTML copies or redirect pages. All documentation belongs in the docs/ folder.
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
 ## Working Effectively
 
 ### Bootstrap and Run the Application
-- **CRITICAL**: Both applications require internet access to load external CDN dependencies (React, Tailwind CSS, Babel)
+- **CRITICAL**: The application requires internet access to load external CDN dependencies (React, Tailwind CSS, Babel)
 - Clone or download the repository: `git clone https://github.com/TheMrFish3D/JustTheChip.git`
 - Navigate to repository: `cd JustTheChip`
 - Start local web server: `python3 -m http.server 8080` (takes 2-3 seconds to start)
 - **NEVER CANCEL**: Wait for "Serving HTTP on 0.0.0.0 port 8080" message before proceeding
 - **TIMEOUT WARNING**: Allow up to 30 seconds for server startup if system is busy
-- **DUAL ARCHITECTURE**: Choose which version to run:
-  - **Original Version**: `http://localhost:8080/JustTheChip.html` (fully functional)
-  - **Landing Page**: `http://localhost:8080/index.html` (shows progress and features)
+- **MAIN APPLICATION**: Open `http://localhost:8080` (index.html is the only calculator)
+- **ADDITIONAL PAGES**: 
+  - **Help Documentation**: `http://localhost:8080/docs/help.html`
   - **Modular Version**: `http://localhost:8080/src/index.html` (v2.0, in development)
-- **VALIDATION REQUIRED**: Applications load successfully with:
-  - HTML title shows "CNC Speeds & Feeds Calculator" 
+- **VALIDATION REQUIRED**: Application loads successfully with:
+  - HTML title shows "JustTheChip - CNC Speeds & Feeds Calculator" 
   - Page displays header with application title
   - UI components load (if CDN accessible) or basic HTML structure (if CDN blocked)
 
@@ -44,12 +46,16 @@ JustTheChip/
 ├── .git/                    # Git repository  
 ├── .github/                 # GitHub configuration
 │   └── copilot-instructions.md
-├── JustTheChip.html        # Original complete application (83KB, 1,641 lines)
-├── index.html              # Landing page showing v2.0 progress (14KB)
+├── index.html              # MAIN CALCULATOR APPLICATION (103KB) - ONLY CALCULATOR PAGE
 ├── README.md               # Comprehensive documentation (11KB)
-├── ARCHITECTURE_ANALYSIS.md # Technical analysis (6.5KB)
-├── FORMULA_VALIDATION.md   # Formula improvements (5.9KB)
-├── IMPLEMENTATION_SUMMARY.md # Development summary (9.2KB)
+├── package.json            # Project metadata
+├── docs/                   # ALL DOCUMENTATION FILES
+│   ├── ARCHITECTURE_ANALYSIS.md # Technical analysis (6.5KB)
+│   ├── ENGINEERING_RESEARCH.md  # Research documentation
+│   ├── FORMULA_VALIDATION.md    # Formula improvements (5.9KB)
+│   ├── IMPLEMENTATION_SUMMARY.md # Development summary (9.2KB)
+│   ├── VALIDATION_SUMMARY.md    # Validation documentation
+│   └── help.html                # User help documentation
 └── src/                    # Modular v2.0 architecture (288KB total)
     ├── app.js              # Main application entry point (25KB)
     ├── index.html          # Modular version HTML (16KB)
@@ -82,15 +88,14 @@ Always manually validate any code changes by running through these complete user
 1. **Basic Application Loading Test**:
    - Start local server: `python3 -m http.server 8080` (or available port)
    - **TIMEOUT**: Allow 30 seconds for startup. NEVER CANCEL.
-   - Test each version:
-     - Original: `http://localhost:8080/JustTheChip.html`
-     - Landing: `http://localhost:8080/index.html` 
-     - Modular: `http://localhost:8080/src/index.html`
+   - Test main application: `http://localhost:8080` (index.html)
+   - Test documentation: `http://localhost:8080/docs/help.html`
+   - Test modular version: `http://localhost:8080/src/index.html`
    - **MINIMUM VALIDATION**: HTML structure loads with correct titles
    - **FULL VALIDATION** (with internet): Complete UI loads with styled components
 
-2. **Original Version Calculation Test** (requires internet access):
-   - Navigate to `http://localhost:8080/JustTheChip.html`
+2. **Main Application Calculation Test** (requires internet access):
+   - Navigate to `http://localhost:8080`
    - Verify complete UI loads (left panel forms, right panel results)
    - Select a machine type (dropdown shows "Light Hobby", "PrintNC", "Heavy CNC", etc.)
    - Configure spindle power (default values should populate)
@@ -100,23 +105,25 @@ Always manually validate any code changes by running through these complete user
    - **VALIDATION**: Results appear in right panel with calculated RPM, feed rates, power requirements, warnings
 
 3. **Export/Import Test** (requires internet access):
-   - Configure a complete calculation setup in original version
+   - Configure a complete calculation setup in main application
    - Click "Export Settings" button
    - Verify JSON file downloads with name `cnc-speeds-feeds-settings-[timestamp].json`
    - Click "Import Settings" button and select the exported file
    - **VALIDATION**: All settings restore exactly as exported
 
-4. **Warning System Test** (requires internet access):
+4. **Theme and Settings Test** (requires internet access):
+   - Click "⚙️ Settings" button in header
+   - Test theme switching (11 themes including Claude theme)
+   - Test typography options (7 font families, 4 sizes)
+   - Test layout switching (5 layout options)
+   - **VALIDATION**: All themes display correctly with proper contrast
+   - **VALIDATION**: Settings persist after page refresh
+
+5. **Warning System Test** (requires internet access):
    - Set aggressive parameters (high aggressiveness slider, small tool diameter, hard material)
    - **VALIDATION**: Warning badges appear (red for danger, yellow for caution)
    - Hover over warning icons to see detailed messages
    - Test power requirements exceed spindle capacity warnings
-
-5. **Landing Page Features Test**:
-   - Navigate to `http://localhost:8080/index.html`
-   - Verify progress indicators show implementation status (75% complete)
-   - Click "Try Original Version" button - should navigate to JustTheChip.html
-   - Verify feature descriptions and architecture improvements are displayed
 
 6. **Modular Version Test** (CDN-dependent):
    - Navigate to `http://localhost:8080/src/index.html`
@@ -145,12 +152,12 @@ Always manually validate any code changes by running through these complete user
 
 ### Making Code Changes
 
-#### Original Version (JustTheChip.html)
-- **SINGLE FILE**: All application code is in `JustTheChip.html` (83KB, 1,641 lines)
+#### Main Application (index.html)
+- **SINGLE FILE**: All application code is in `index.html` (103KB)
 - **SEARCH PATTERNS**: Use these to find specific sections:
-  - Tool configurations: Search for "TOOL_TYPES" (line 44)
-  - Material properties: Search for "MATERIALS" (line 316)  
-  - Calculation engine: Search for "CALCULATION ENGINE" (line 716)
+  - Tool configurations: Search for "TOOL_TYPES" 
+  - Material properties: Search for "MATERIALS"  
+  - Calculation engine: Search for "CALCULATION ENGINE"
   - UI components: Search for "className=" or "React"
 - **TEST IMMEDIATELY**: After any change, refresh browser and run validation scenarios
 - **NO COMPILATION**: Changes are immediately reflected on page refresh
@@ -168,15 +175,15 @@ Always manually validate any code changes by running through these complete user
 
 ### Understanding the Codebase
 
-#### Original Version Structure (JustTheChip.html)
+#### Main Application Structure (index.html)
 The application is structured in clear sections within the HTML file:
 
-1. **HTML Head** (lines 1-38): External dependencies and custom CSS
-2. **Tool Types** (lines 44-115): Cutting tool definitions and parameters  
-3. **Cut Types** (lines 118-260): Machining operation definitions
-4. **Materials** (lines 316-715): Material properties and machining parameters
-5. **Calculation Engine** (lines 716-1100): Core speeds/feeds algorithms
-6. **React UI** (lines 1101-1640): User interface components and state management
+1. **HTML Head**: External dependencies and custom CSS
+2. **Tool Types**: Cutting tool definitions and parameters  
+3. **Cut Types**: Machining operation definitions
+4. **Materials**: Material properties and machining parameters
+5. **Calculation Engine**: Core speeds/feeds algorithms
+6. **React UI**: User interface components and state management
 
 #### Modular Version Structure (src/)
 Clean separation of concerns with dedicated files:
@@ -188,7 +195,7 @@ Clean separation of concerns with dedicated files:
 
 ### Key Application Features
 
-#### Original Version (JustTheChip.html)
+#### Main Application (index.html)
 - **Machine Presets**: Pre-configured machine types (Light Hobby, PrintNC, Heavy CNC, etc.)
 - **Tool Library**: Extensive cutting tool database (end mills, drills, chamfers, v-bits, etc.)
 - **Material Database**: Common machining materials with cutting parameters (Al, Steel, Stainless, etc.)
@@ -196,6 +203,10 @@ Clean separation of concerns with dedicated files:
 - **Export/Import**: Settings persistence via JSON files with timestamp
 - **Responsive Design**: Works on desktop and mobile browsers
 - **Real-time Calculations**: Instant updates as parameters change
+- **11 Themes**: Including Claude theme with ChatGPT-analyzed colors
+- **Settings Panel**: Professional modal for theme, layout, typography, and preferences
+- **Typography Options**: 7 font families and 4 size options with live preview
+- **localStorage Preferences**: Persistent settings across browser sessions
 
 #### Modular Version (src/)
 - **Enhanced Architecture**: Separated data models, calculation engines, and UI components
@@ -249,11 +260,11 @@ ls -la src/data/ src/calculations/ src/components/ src/utils/  # Check module di
 ```
 
 ### Repository Statistics (Validated)
-- **Total Size**: ~708KB
-- **Original Version**: 83KB (1,641 lines) - fully functional
-- **Modular Version**: 288KB (14+ files) - in development
-- **Documentation**: 42KB (README, analysis, validation docs)
-- **File Count**: ~30 total files across all directories
+- **Total Size**: ~150KB (significantly reduced from previous ~708KB)
+- **Main Application**: 103KB - fully functional single-page calculator
+- **Modular Version**: 288KB (14+ files) - in development  
+- **Documentation**: Moved to docs/ folder - 42KB total
+- **File Count**: 8 essential files in root + docs/ and src/ directories
 
 ### External Dependencies (CDN)
 The applications load these external libraries:
@@ -287,20 +298,19 @@ The applications load these external libraries:
    python3 -m http.server 8080  # NEVER CANCEL - wait for "Serving HTTP" message (2-3 seconds)
    ```
 
-4. **Application Testing**:
-   - **Original Version**: Open `http://localhost:8080/JustTheChip.html`
-     - Verify HTML title loads: "CNC Speeds & Feeds Calculator"
+3. **Application Testing**:
+   - **Main Application**: Open `http://localhost:8080`
+     - Verify HTML title loads: "JustTheChip - CNC Speeds & Feeds Calculator"
      - **With Internet**: Full React UI with machine configs and calculation results
      - **Without Internet**: Basic HTML structure loads correctly
-   - **Landing Page**: Open `http://localhost:8080/index.html`
-     - Shows v2.0 progress and feature descriptions
-     - "Try Original Version" button should work
+   - **Documentation**: Open `http://localhost:8080/docs/help.html`
+     - Should load user help documentation
    - **Modular Version**: Open `http://localhost:8080/src/index.html`
      - **With Internet**: Should load modular application (in development)
      - **Without Internet**: Shows error page with troubleshooting instructions
 
 5. **Development Workflow**:
-   - **Original Version Changes**: Edit `JustTheChip.html` directly, refresh browser immediately
+   - **Main Application Changes**: Edit `index.html` directly, refresh browser immediately
    - **Modular Version Changes**: Edit appropriate files in `src/` directory structure
    - Use browser console (F12) for debugging JavaScript and CDN loading issues
    - **ALWAYS** test complete calculation workflow before committing changes
@@ -322,9 +332,10 @@ The applications load these external libraries:
 - **Calculation Updates**: Instant (<50ms when fully loaded)
 
 ### Critical Reminders
-- **Dual architecture**: Both single-file and modular versions exist and serve different purposes
+- **Single main page**: Only index.html is the calculator - NO REDUNDANT COPIES
+- **Documentation organization**: All docs go in docs/ folder
 - **No build process**: Changes are immediately reflected on page refresh
 - **Internet dependency**: Full functionality requires CDN access, but HTML structure validates without it
-- **Always validate**: Test complete calculation workflow in original version before committing changes
+- **Always validate**: Test complete calculation workflow in main application before committing changes
 - **Never skip server**: Must use HTTP server, not file:// protocol
 - **Sandbox limitations**: CDN resources will be blocked, but basic structure should still load
