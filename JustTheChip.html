@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/zustand@4.4.7/vanilla.mjs" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -30,6 +31,67 @@
             height: 20px;
             margin-right: 8px;
             vertical-align: middle;
+        }
+        
+        /* Tooltip and Modal Styles */
+        .tooltip-term {
+            cursor: help;
+            border-bottom: 1px dotted #6b7280;
+            text-decoration: none;
+        }
+        
+        .tooltip-term:hover {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .result-value {
+            cursor: help;
+            position: relative;
+        }
+        
+        .result-value:hover {
+            background-color: #f3f4f6;
+            border-radius: 2px;
+            padding: 1px 2px;
+        }
+        
+        .result-card-header:hover {
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 4px;
+            margin: -4px;
+        }
+        
+        .tooltip-container {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .tooltip-header {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .parameter-range {
+            user-select: none;
+        }
+        
+        .detailed-modal-overlay {
+            backdrop-filter: blur(2px);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .tooltip-container {
+                max-width: 280px;
+                font-size: 13px;
+            }
+            
+            .detailed-modal-overlay .modal-content {
+                margin: 10px;
+                max-height: 95vh;
+            }
         }
     </style>
 </head>
@@ -731,6 +793,492 @@
             }
         };
 
+        // ============= INDUSTRY TERMINOLOGY DATABASE =============
+        
+        const INDUSTRY_TERMS = {
+            // Cutting Parameters
+            'RPM': {
+                fullName: 'Revolutions Per Minute',
+                description: 'Spindle rotational speed - the number of complete rotations the spindle makes in one minute.',
+                formula: 'RPM = (1000 × Vc) / (π × D)',
+                variables: {
+                    'Vc': 'Cutting speed in m/min',
+                    'D': 'Tool diameter in mm',
+                    'π': 'Mathematical constant pi (≈3.14159)'
+                },
+                safetyNotes: 'Exceeding max RPM can cause tool failure or spindle damage. Too low RPM may cause work hardening.',
+                typicalRanges: {
+                    'small_tools': '15,000-30,000 RPM (1-6mm tools)',
+                    'medium_tools': '8,000-20,000 RPM (6-12mm tools)', 
+                    'large_tools': '3,000-12,000 RPM (12mm+ tools)'
+                }
+            },
+            'DOC': {
+                fullName: 'Depth of Cut (Axial)',
+                description: 'The thickness of material removed in the cutting direction (along tool axis).',
+                formula: 'DOC = Material thickness per pass',
+                safetyNotes: 'Excessive DOC increases cutting forces exponentially and may break the tool.',
+                typicalRanges: {
+                    'conservative': '10-30% of tool diameter',
+                    'moderate': '30-50% of tool diameter',
+                    'aggressive': '50-100% of tool diameter (use with caution)'
+                }
+            },
+            'WOC': {
+                fullName: 'Width of Cut (Radial)',
+                description: 'The width of material engaged by the tool perpendicular to the cutting direction.',
+                formula: 'WOC = ae = Step-over distance',
+                safetyNotes: 'Full-width cuts (100% WOC) create maximum stress. Reduce for better tool life.',
+                typicalRanges: {
+                    'finishing': '5-20% of tool diameter',
+                    'semi_roughing': '20-50% of tool diameter',
+                    'slotting': '100% of tool diameter'
+                }
+            },
+            'Chipload': {
+                fullName: 'Feed per Tooth',
+                description: 'The thickness of material each cutting edge removes per revolution.',
+                formula: 'fz = Feed Rate / (RPM × Number of Flutes)',
+                variables: {
+                    'fz': 'Chipload in mm/tooth',
+                    'Feed Rate': 'Table feed in mm/min',
+                    'RPM': 'Spindle speed',
+                    'Flutes': 'Number of cutting edges'
+                },
+                safetyNotes: 'Too low causes rubbing and work hardening. Too high breaks the tool.',
+                typicalRanges: {
+                    'aluminum': '0.05-0.25 mm/tooth',
+                    'steel': '0.02-0.15 mm/tooth',
+                    'plastic': '0.1-0.4 mm/tooth'
+                }
+            },
+            'MRR': {
+                fullName: 'Material Removal Rate',
+                description: 'Volume of material removed per minute - measure of machining efficiency.',
+                formula: 'MRR = WOC × DOC × Feed Rate',
+                variables: {
+                    'WOC': 'Width of cut (ae)',
+                    'DOC': 'Depth of cut (ap)', 
+                    'Feed Rate': 'Table feed speed'
+                },
+                safetyNotes: 'Higher MRR generates more heat and requires more power.',
+                units: 'mm³/min or cm³/min'
+            },
+            'SFM': {
+                fullName: 'Surface Feet per Minute',
+                description: 'Linear speed of the tool edge relative to the workpiece (Imperial units).',
+                formula: 'SFM = (π × D × RPM) / 12',
+                variables: {
+                    'D': 'Tool diameter in inches',
+                    'RPM': 'Spindle speed'
+                },
+                metricEquivalent: 'Cutting Speed (Vc) in m/min'
+            },
+            'Vc': {
+                fullName: 'Cutting Speed',
+                description: 'Linear speed of the tool edge relative to the workpiece (Metric units).',
+                formula: 'Vc = (π × D × RPM) / 1000',
+                variables: {
+                    'D': 'Tool diameter in mm',
+                    'RPM': 'Spindle speed'
+                },
+                units: 'm/min',
+                imperialEquivalent: 'Surface Feet per Minute (SFM)'
+            },
+            'Deflection': {
+                fullName: 'Tool Deflection',
+                description: 'Bending of the tool under cutting forces, affecting accuracy and surface finish.',
+                formula: 'δ = (F × L³) / (3 × E × I) + (k × F × L) / (G × A) + F × Compliance',
+                variables: {
+                    'F': 'Cutting force in N',
+                    'L': 'Tool stickout length',
+                    'E': 'Young\'s modulus (material stiffness)',
+                    'I': 'Second moment of area',
+                    'G': 'Shear modulus',
+                    'A': 'Cross-sectional area',
+                    'Compliance': 'Tool holder + spindle compliance'
+                },
+                safetyNotes: 'Excessive deflection causes poor surface finish, dimensional errors, and tool chatter.',
+                acceptableLimits: {
+                    'precision': '< 0.01mm',
+                    'general': '< 0.02mm', 
+                    'rough': '< 0.05mm'
+                }
+            },
+            'Power': {
+                fullName: 'Spindle Power Required',
+                description: 'Electrical power needed from the spindle motor to maintain cutting operations.',
+                formula: 'P = (SEC × MRR) / η + P_losses',
+                variables: {
+                    'SEC': 'Specific cutting energy (J/mm³)',
+                    'MRR': 'Material removal rate (mm³/min)',
+                    'η': 'Overall machine efficiency (0.7-0.9)',
+                    'P_losses': 'Bearing, drive, and spindle losses'
+                },
+                safetyNotes: 'Exceeding spindle power causes motor stall, poor surface finish, and potential damage.',
+                units: 'Watts (W) or kilowatts (kW)'
+            },
+            'Force': {
+                fullName: 'Cutting Force',
+                description: 'Mechanical force exerted by the tool on the workpiece during cutting.',
+                formula: 'F = K × A × adjustment_factors',
+                variables: {
+                    'K': 'Material force coefficient (N/mm²)',
+                    'A': 'Chip cross-sectional area (mm²)',
+                    'adjustment_factors': 'Tool geometry, coating, and engagement corrections'
+                },
+                safetyNotes: 'High cutting forces can cause tool breakage, workpiece deflection, and machine vibration.',
+                units: 'Newtons (N)'
+            }
+        };
+
+        // ============= TOOLTIP AND MODAL SYSTEM =============
+        
+        const TooltipSystem = {
+            createTooltip: function(element, content, type = 'basic') {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip-container';
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 12px;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                    max-width: 350px;
+                    z-index: 1000;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    display: none;
+                `;
+                
+                if (type === 'parameter') {
+                    tooltip.innerHTML = this.createParameterTooltip(content);
+                } else if (type === 'formula') {
+                    tooltip.innerHTML = this.createFormulaTooltip(content);
+                } else {
+                    tooltip.innerHTML = content;
+                }
+                
+                document.body.appendChild(tooltip);
+                
+                element.addEventListener('mouseenter', (e) => {
+                    this.positionTooltip(tooltip, e);
+                    tooltip.style.display = 'block';
+                });
+                
+                element.addEventListener('mouseleave', () => {
+                    tooltip.style.display = 'none';
+                });
+                
+                element.addEventListener('mousemove', (e) => {
+                    this.positionTooltip(tooltip, e);
+                });
+                
+                return tooltip;
+            },
+            
+            createParameterTooltip: function(paramData) {
+                const { name, value, min, max, recommended, unit, status } = paramData;
+                const statusColor = status === 'danger' ? '#ef4444' : 
+                                  status === 'warning' ? '#f59e0b' : 
+                                  status === 'good' ? '#10b981' : '#6b7280';
+                
+                const percentage = Math.min(Math.max((value - min) / (max - min) * 100, 0), 100);
+                const recommendedPerc = Math.min(Math.max((recommended - min) / (max - min) * 100, 0), 100);
+                
+                return `
+                    <div class="tooltip-header">
+                        <strong>${name}</strong>
+                        <span style="color: ${statusColor}; margin-left: 8px;">${value}${unit}</span>
+                    </div>
+                    <div class="parameter-range" style="margin: 8px 0;">
+                        <div style="position: relative; height: 20px; background: #f3f4f6; border-radius: 10px; overflow: hidden;">
+                            <div style="position: absolute; left: 0; top: 0; height: 100%; background: linear-gradient(to right, #ef4444, #f59e0b, #10b981); width: 100%;"></div>
+                            <div style="position: absolute; left: ${recommendedPerc}%; top: 0; width: 2px; height: 100%; background: white; border: 1px solid #333;"></div>
+                            <div style="position: absolute; left: ${percentage}%; top: 0; width: 8px; height: 100%; background: ${statusColor}; border: 2px solid white; margin-left: -4px; border-radius: 50%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-top: 4px;">
+                            <span>Min: ${min}${unit}</span>
+                            <span>Rec: ${recommended}${unit}</span>
+                            <span>Max: ${max}${unit}</span>
+                        </div>
+                    </div>
+                    <div style="font-size: 12px; color: #6b7280;">
+                        ${this.getParameterAdvice(name, value, recommended, status)}
+                    </div>
+                `;
+            },
+            
+            createFormulaTooltip: function(termKey) {
+                const term = INDUSTRY_TERMS[termKey];
+                if (!term) return `<div>No information available for ${termKey}</div>`;
+                
+                return `
+                    <div class="tooltip-header">
+                        <strong>${termKey}</strong> - ${term.fullName}
+                    </div>
+                    <div style="margin: 8px 0; color: #374151;">
+                        ${term.description}
+                    </div>
+                    ${term.formula ? `
+                        <div style="background: #f9fafb; padding: 8px; border-radius: 4px; margin: 8px 0; font-family: monospace;">
+                            <strong>Formula:</strong> ${term.formula}
+                        </div>
+                    ` : ''}
+                    ${term.variables ? `
+                        <div style="margin: 8px 0;">
+                            <strong>Variables:</strong>
+                            <ul style="margin: 4px 0; padding-left: 16px; font-size: 12px;">
+                                ${Object.entries(term.variables).map(([key, desc]) => 
+                                    `<li><code>${key}</code>: ${desc}</li>`
+                                ).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    ${term.safetyNotes ? `
+                        <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 8px; margin: 8px 0; font-size: 12px;">
+                            <strong>⚠️ Safety:</strong> ${term.safetyNotes}
+                        </div>
+                    ` : ''}
+                    <div style="font-size: 11px; color: #6b7280; margin-top: 8px;">
+                        Click for detailed explanation with calculations
+                    </div>
+                `;
+            },
+            
+            getParameterAdvice: function(name, value, recommended, status) {
+                const ratio = value / recommended;
+                
+                switch(status) {
+                    case 'danger':
+                        if (ratio > 1.5) return `⚠️ Very aggressive setting (${ratio.toFixed(1)}× recommended). High risk of tool failure or poor surface finish.`;
+                        if (ratio < 0.3) return `⚠️ Very conservative setting (${ratio.toFixed(1)}× recommended). May cause tool rubbing or work hardening.`;
+                        break;
+                    case 'warning':
+                        if (ratio > 1.2) return `⚡ Aggressive setting (${ratio.toFixed(1)}× recommended). Monitor carefully for tool wear.`;
+                        if (ratio < 0.5) return `⚡ Conservative setting (${ratio.toFixed(1)}× recommended). Consider increasing for better efficiency.`;
+                        break;
+                    case 'good':
+                        return `✅ Good setting within safe parameters (${ratio.toFixed(1)}× recommended).`;
+                    default:
+                        return `📊 Current: ${ratio.toFixed(1)}× recommended value`;
+                }
+                return '';
+            },
+            
+            positionTooltip: function(tooltip, event) {
+                const rect = tooltip.getBoundingClientRect();
+                const x = event.clientX + 10;
+                const y = event.clientY - rect.height - 10;
+                
+                tooltip.style.left = Math.min(x, window.innerWidth - rect.width - 10) + 'px';
+                tooltip.style.top = Math.max(y, 10) + 'px';
+            }
+        };
+
+        // ============= DETAILED MODAL SYSTEM =============
+        
+        const DetailedModal = {
+            create: function(title, content) {
+                const modal = document.createElement('div');
+                modal.className = 'detailed-modal-overlay';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.6);
+                    z-index: 2000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                `;
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.cssText = `
+                    background: white;
+                    border-radius: 12px;
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    position: relative;
+                    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+                `;
+                
+                modalContent.innerHTML = `
+                    <div style="padding: 24px; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; background: white; z-index: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="font-size: 24px; font-weight: bold; margin: 0;">${title}</h2>
+                            <button class="close-modal" style="background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; border-radius: 6px; color: #6b7280;">×</button>
+                        </div>
+                    </div>
+                    <div style="padding: 24px;">
+                        ${content}
+                    </div>
+                `;
+                
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+                // Close handlers
+                modal.querySelector('.close-modal').addEventListener('click', () => {
+                    this.close(modal);
+                });
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        this.close(modal);
+                    }
+                });
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        this.close(modal);
+                    }
+                });
+                
+                return modal;
+            },
+            
+            close: function(modal) {
+                if (modal && modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            },
+            
+            createCalculationBreakdown: function(result, material, tool, cutType) {
+                const materialData = MATERIALS[material];
+                const toolData = TOOL_TYPES[tool.type];
+                
+                return `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #1f2937;">Input Parameters</h3>
+                            <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="margin-bottom: 8px;"><strong>Material:</strong> ${material}</div>
+                                <div style="margin-bottom: 8px;"><strong>Tool:</strong> ${toolData.name}</div>
+                                <div style="margin-bottom: 8px;"><strong>Cut Type:</strong> ${cutType}</div>
+                                <div style="margin-bottom: 8px;"><strong>Diameter:</strong> ${tool.diameter_mm}mm</div>
+                                <div style="margin-bottom: 8px;"><strong>Flutes:</strong> ${tool.flutes}</div>
+                                <div><strong>Stickout:</strong> ${tool.stickout_mm || 25}mm</div>
+                            </div>
+                            
+                            <h4 style="font-size: 16px; font-weight: bold; margin-bottom: 12px;">Speed Calculation</h4>
+                            <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="font-family: monospace; margin-bottom: 8px;">
+                                    <strong>RPM = (1000 × Vc) / (π × D)</strong>
+                                </div>
+                                <div style="font-size: 14px; margin-bottom: 4px;">Where:</div>
+                                <ul style="font-size: 14px; margin: 0; padding-left: 20px;">
+                                    <li>Vc = ${materialData.vc_range[0]}-${materialData.vc_range[1]} m/min (cutting speed range)</li>
+                                    <li>D = ${tool.diameter_mm}mm (tool diameter)</li>
+                                    <li>π ≈ 3.14159</li>
+                                </ul>
+                                <div style="margin-top: 12px; padding: 8px; background: white; border-radius: 4px;">
+                                    <strong>Result: ${result.rpm} RPM</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #1f2937;">Feed Calculation</h3>
+                            <div style="background: #dbeafe; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                <div style="font-family: monospace; margin-bottom: 8px;">
+                                    <strong>Feed = RPM × Z × fz</strong>
+                                </div>
+                                <div style="font-size: 14px; margin-bottom: 4px;">Where:</div>
+                                <ul style="font-size: 14px; margin: 0; padding-left: 20px;">
+                                    <li>RPM = ${result.rpm} (calculated above)</li>
+                                    <li>Z = ${tool.flutes} (number of flutes)</li>
+                                    <li>fz = ${result.fz_mm.toFixed(3)}mm (chipload per tooth)</li>
+                                </ul>
+                                <div style="margin-top: 12px; padding: 8px; background: white; border-radius: 4px;">
+                                    <strong>Result: ${result.feed_mm_min} mm/min</strong>
+                                </div>
+                            </div>
+                            
+                            <h4 style="font-size: 16px; font-weight: bold; margin-bottom: 12px;">Power Calculation</h4>
+                            <div style="background: #fce7f3; padding: 16px; border-radius: 8px;">
+                                <div style="font-family: monospace; margin-bottom: 8px;">
+                                    <strong>P = SEC × MRR / η</strong>
+                                </div>
+                                <div style="font-size: 14px; margin-bottom: 4px;">Where:</div>
+                                <ul style="font-size: 14px; margin: 0; padding-left: 20px;">
+                                    <li>SEC = ${materialData.specific_cutting_energy_J_mm3} J/mm³ (specific cutting energy)</li>
+                                    <li>MRR = ${result.mrr_mm3_min} mm³/min (material removal rate)</li>
+                                    <li>η ≈ 0.8 (machine efficiency)</li>
+                                </ul>
+                                <div style="margin-top: 12px; padding: 8px; background: white; border-radius: 4px;">
+                                    <strong>Result: ${result.power_W}W</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 24px;">
+                        <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #1f2937;">Validation & Safety Analysis</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">
+                                <h4 style="color: #16a34a; margin-bottom: 8px;">✅ Chipload Analysis</h4>
+                                <div style="font-size: 14px;">
+                                    Target range: ${DetailedModal.getChiploadRange(tool.diameter_mm, materialData)} mm/tooth<br>
+                                    Actual: ${result.fz_mm.toFixed(3)} mm/tooth<br>
+                                    Status: ${DetailedModal.getChiploadStatus(result.fz_mm, tool.diameter_mm, materialData)}
+                                </div>
+                            </div>
+                            
+                            ${result.deflection_mm > 0 ? `
+                            <div style="background: ${result.deflection_mm > 0.05 ? '#fef2f2' : result.deflection_mm > 0.02 ? '#fefbeb' : '#f0fdf4'}; border: 1px solid ${result.deflection_mm > 0.05 ? '#fecaca' : result.deflection_mm > 0.02 ? '#fed7aa' : '#bbf7d0'}; border-radius: 8px; padding: 16px;">
+                                <h4 style="color: ${result.deflection_mm > 0.05 ? '#dc2626' : result.deflection_mm > 0.02 ? '#d97706' : '#16a34a'}; margin-bottom: 8px;">
+                                    ${result.deflection_mm > 0.05 ? '⚠️' : result.deflection_mm > 0.02 ? '⚡' : '✅'} Tool Deflection
+                                </h4>
+                                <div style="font-size: 14px;">
+                                    Calculated: ${result.deflection_mm.toFixed(3)} mm<br>
+                                    Acceptable: < 0.02mm (general)<br>
+                                    Status: ${result.deflection_mm > 0.05 ? 'Excessive - reduce load' : result.deflection_mm > 0.02 ? 'Moderate - monitor' : 'Good'}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    ${result.warnings.length > 0 ? `
+                    <div style="margin-top: 24px; padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;">
+                        <h4 style="color: #dc2626; margin-bottom: 12px;">⚠️ Warnings & Recommendations</h4>
+                        ${result.warnings.map(w => `
+                            <div style="margin-bottom: 8px; padding: 8px; background: white; border-radius: 4px; border-left: 3px solid ${w.type === 'danger' ? '#dc2626' : w.type === 'warning' ? '#d97706' : '#2563eb'};">
+                                <strong>${w.type.toUpperCase()}:</strong> ${w.message}
+                            </div>
+                        `).join('')}
+                    </div>
+                    ` : ''}
+                `;
+            },
+            
+            getChiploadRange: function(diameter, material) {
+                for (const range of material.fz_mm_per_tooth_by_diameter) {
+                    if (diameter <= range.max_d_mm) {
+                        return `${range.range[0].toFixed(3)}-${range.range[1].toFixed(3)}`;
+                    }
+                }
+                return 'N/A';
+            },
+            
+            getChiploadStatus: function(actual, diameter, material) {
+                for (const range of material.fz_mm_per_tooth_by_diameter) {
+                    if (diameter <= range.max_d_mm) {
+                        if (actual < range.range[0]) return 'Too low - risk of rubbing';
+                        if (actual > range.range[1]) return 'Too high - risk of breakage';
+                        return 'Within recommended range';
+                    }
+                }
+                return 'Unknown';
+            }
+        };
+
         // ============= CALCULATION ENGINE =============
         
         class SpeedsFeedsCalculator {
@@ -1392,6 +1940,63 @@
                 }
             }, [calculateResults]);
             
+            // Show detailed calculation modal
+            const showDetailedCalculation = (result, materialId, tool, cutType) => {
+                const modal = DetailedModal.create(
+                    `Detailed Calculation: ${result.material} - ${result.cutType}`,
+                    DetailedModal.createCalculationBreakdown(result, materialId, tool, result.cutTypeId)
+                );
+            };
+            
+            // Initialize tooltip system
+            useEffect(() => {
+                const initializeTooltips = () => {
+                    // Initialize term tooltips
+                    document.querySelectorAll('.tooltip-term').forEach(element => {
+                        const term = element.getAttribute('data-term');
+                        if (term && INDUSTRY_TERMS[term]) {
+                            TooltipSystem.createTooltip(element, term, 'formula');
+                        }
+                    });
+                    
+                    // Initialize parameter tooltips
+                    document.querySelectorAll('.result-value').forEach(element => {
+                        const param = element.getAttribute('data-param');
+                        const value = parseFloat(element.getAttribute('data-value'));
+                        const min = parseFloat(element.getAttribute('data-min'));
+                        const max = parseFloat(element.getAttribute('data-max'));
+                        const recommended = parseFloat(element.getAttribute('data-recommended'));
+                        const unit = element.getAttribute('data-unit') || '';
+                        
+                        if (param && !isNaN(value)) {
+                            // Determine status
+                            let status = 'good';
+                            if (value > recommended * 1.5 || value < recommended * 0.3) {
+                                status = 'danger';
+                            } else if (value > recommended * 1.2 || value < recommended * 0.5) {
+                                status = 'warning';
+                            }
+                            
+                            const paramData = {
+                                name: param.charAt(0).toUpperCase() + param.slice(1),
+                                value: value,
+                                min: min,
+                                max: max,
+                                recommended: recommended,
+                                unit: unit,
+                                status: status
+                            };
+                            
+                            TooltipSystem.createTooltip(element, paramData, 'parameter');
+                        }
+                    });
+                };
+                
+                // Delay initialization to ensure DOM is ready
+                const timer = setTimeout(initializeTooltips, 100);
+                return () => clearTimeout(timer);
+            }, [results]);
+            
             // Export/Import functions
             const exportSettings = () => {
                 const settings = {
@@ -1737,12 +2342,14 @@
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {results.map((result, idx) => (
                                             <div key={idx} className="bg-white rounded-lg shadow-sm border p-4 animate-slideIn">
-                                                <div className="flex justify-between items-start mb-2">
+                                                <div className="flex justify-between items-start mb-2 cursor-pointer result-card-header" 
+                                                     onClick={() => showDetailedCalculation(result, matId, tool, cutType)}>
                                                     <div>
                                                         <h4 className="font-semibold">{result.material}</h4>
                                                         <p className="text-sm text-gray-600">
                                                             {result.cutType} • {TOOL_TYPES[result.toolType].icon} {TOOL_TYPES[result.toolType].name}
                                                         </p>
+                                                        <p className="text-xs text-blue-600">Click for detailed calculations</p>
                                                     </div>
                                                     <div className="flex gap-1">
                                                         {result.warnings.map((w, i) => (
@@ -1761,48 +2368,48 @@
                                                 
                                                 <div className="grid grid-cols-2 gap-2 text-sm">
                                                     <div>
-                                                        <span className="text-gray-500">RPM:</span>
-                                                        <span className="ml-2 font-medium">{result.rpm}</span>
+                                                        <span className="text-gray-500 tooltip-term" data-term="RPM">RPM (n):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="rpm" data-value={result.rpm} data-min="6000" data-max="30000" data-recommended="15000" data-unit=" RPM">{result.rpm}</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-500">Feed:</span>
-                                                        <span className="ml-2 font-medium">{result.feed_mm_min} mm/min</span>
+                                                        <span className="text-gray-500 tooltip-term" data-term="Feed">Feed (Vf):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="feed" data-value={result.feed_mm_min} data-min="100" data-max="5000" data-recommended="1500" data-unit=" mm/min">{result.feed_mm_min} mm/min</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-500">Chipload:</span>
-                                                        <span className="ml-2 font-medium">{result.fz_mm.toFixed(3)} mm</span>
+                                                        <span className="text-gray-500 tooltip-term" data-term="Chipload">Chipload (fz):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="chipload" data-value={result.fz_mm} data-min="0.01" data-max="0.5" data-recommended="0.1" data-unit=" mm">{result.fz_mm.toFixed(3)} mm</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-500">MRR:</span>
-                                                        <span className="ml-2 font-medium">{result.mrr_mm3_min} mm³/min</span>
+                                                        <span className="text-gray-500 tooltip-term" data-term="MRR">MRR (Q):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="mrr" data-value={result.mrr_mm3_min} data-min="100" data-max="50000" data-recommended="5000" data-unit=" mm³/min">{result.mrr_mm3_min} mm³/min</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-500">WOC:</span>
-                                                        <span className="ml-2 font-medium">{result.ae_mm.toFixed(1)} mm</span>
+                                                        <span className="text-gray-500 tooltip-term" data-term="WOC">WOC (ae):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="woc" data-value={result.ae_mm} data-min="0.1" data-max={tool.diameter_mm} data-recommended={tool.diameter_mm * 0.3} data-unit=" mm">{result.ae_mm.toFixed(1)} mm</span>
                                                     </div>
                                                     <div>
-                                                        <span className="text-gray-500">DOC:</span>
-                                                        <span className="ml-2 font-medium">{result.ap_mm.toFixed(1)} mm</span>
+                                                        <span className="text-gray-500 tooltip-term" data-term="DOC">DOC (ap):</span>
+                                                        <span className="ml-2 font-medium result-value" data-param="doc" data-value={result.ap_mm} data-min="0.1" data-max={tool.diameter_mm * 2} data-recommended={tool.diameter_mm * 0.5} data-unit=" mm">{result.ap_mm.toFixed(1)} mm</span>
                                                     </div>
                                                 </div>
                                                 
                                                 <div className="mt-3 pt-3 border-t">
                                                     <div className="flex justify-between text-sm">
                                                         <div>
-                                                            <span className="text-gray-500">Power:</span>
-                                                            <span className={`ml-2 font-medium ${
+                                                            <span className="text-gray-500 tooltip-term" data-term="Power">Power (P):</span>
+                                                            <span className={`ml-2 font-medium result-value ${
                                                                 result.power_W > result.power_available_W * 0.9 ? 'text-red-600' : ''
-                                                            }`}>
+                                                            }`} data-param="power" data-value={result.power_W} data-min="100" data-max={result.power_available_W} data-recommended={result.power_available_W * 0.8} data-unit="W">
                                                                 {result.power_W}W / {result.power_available_W}W
                                                             </span>
                                                         </div>
                                                         {result.deflection_mm > 0 && (
                                                             <div>
-                                                                <span className="text-gray-500">Deflection:</span>
-                                                                <span className={`ml-2 font-medium ${
+                                                                <span className="text-gray-500 tooltip-term" data-term="Deflection">Deflection (δ):</span>
+                                                                <span className={`ml-2 font-medium result-value ${
                                                                     result.deflection_mm > 0.05 ? 'text-red-600' : 
                                                                     result.deflection_mm > 0.02 ? 'text-yellow-600' : ''
-                                                                }`}>
+                                                                }`} data-param="deflection" data-value={result.deflection_mm} data-min="0" data-max="0.1" data-recommended="0.02" data-unit=" mm">
                                                                     {result.deflection_mm.toFixed(3)} mm
                                                                 </span>
                                                             </div>

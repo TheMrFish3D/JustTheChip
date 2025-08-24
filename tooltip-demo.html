@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CNC Tooltip System Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f9fafb;
+        }
+        
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .result-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .result-value {
+            cursor: help;
+            position: relative;
+            padding: 2px 4px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        
+        .result-value:hover {
+            background-color: #dbeafe;
+        }
+        
+        .tooltip-term {
+            cursor: help;
+            border-bottom: 1px dotted #6b7280;
+            text-decoration: none;
+            color: #374151;
+        }
+        
+        .tooltip-term:hover {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .tooltip-container {
+            position: absolute;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            max-width: 350px;
+            z-index: 1000;
+            font-size: 14px;
+            line-height: 1.4;
+            display: none;
+        }
+        
+        .tooltip-header {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: bold;
+        }
+        
+        .parameter-range {
+            margin: 8px 0;
+        }
+        
+        .range-bar {
+            position: relative;
+            height: 20px;
+            background: #f3f4f6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .range-gradient {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(to right, #ef4444, #f59e0b, #10b981);
+            width: 100%;
+        }
+        
+        .recommended-line {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: white;
+            border: 1px solid #333;
+        }
+        
+        .current-indicator {
+            position: absolute;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: #2563eb;
+            border: 2px solid white;
+            margin-left: -4px;
+            border-radius: 50%;
+        }
+        
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+        
+        .close-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            color: #6b7280;
+            float: right;
+        }
+        
+        .close-button:hover {
+            background: #f3f4f6;
+        }
+        
+        .calculation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 24px;
+        }
+        
+        .formula-box {
+            background: #fef3c7;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 4px;
+        }
+        
+        .button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>CNC Tooltip System Demo</h1>
+        <p>This demonstrates the interactive tooltip and calculation modal system. Hover over parameters and click on result cards.</p>
+        
+        <div class="result-card">
+            <h3>Aluminum 6061-T6 - Profile Cut</h3>
+            <p style="color: #6b7280; margin-bottom: 16px;">6mm Flat End Mill • Click for detailed calculations</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
+                <div>
+                    <span class="tooltip-term" data-term="RPM">RPM (n):</span>
+                    <span class="result-value" data-param="rpm">15,000</span>
+                </div>
+                <div>
+                    <span class="tooltip-term" data-term="Feed">Feed (Vf):</span>
+                    <span class="result-value" data-param="feed">1,800 mm/min</span>
+                </div>
+                <div>
+                    <span class="tooltip-term" data-term="Chipload">Chipload (fz):</span>
+                    <span class="result-value" data-param="chipload">0.060 mm</span>
+                </div>
+                <div>
+                    <span class="tooltip-term" data-term="DOC">DOC (ap):</span>
+                    <span class="result-value" data-param="doc">3.0 mm</span>
+                </div>
+                <div>
+                    <span class="tooltip-term" data-term="WOC">WOC (ae):</span>
+                    <span class="result-value" data-param="woc">1.8 mm</span>
+                </div>
+                <div>
+                    <span class="tooltip-term" data-term="MRR">MRR (Q):</span>
+                    <span class="result-value" data-param="mrr">9,720 mm³/min</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between;">
+                <div>
+                    <span class="tooltip-term" data-term="Power">Power (P):</span>
+                    <span class="result-value" data-param="power">1,400W</span>
+                </div>
+                <div>
+                    <span class="tooltip-term" data-term="Deflection">Deflection (δ):</span>
+                    <span class="result-value" data-param="deflection">0.018 mm</span>
+                </div>
+            </div>
+            
+            <button class="button" onclick="showCalculationModal()" style="margin-top: 16px;">
+                Show Detailed Calculations
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="calculationModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detailed Calculation: Aluminum 6061-T6 - Profile Cut</h2>
+                <button class="close-button" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="calculation-grid">
+                <div>
+                    <h3>Speed Calculation</h3>
+                    <div class="formula-box">
+                        <div class="formula">RPM = (1000 × Vc) / (π × D)</div>
+                        <div style="font-size: 14px;">
+                            <strong>Variables:</strong><br>
+                            • Vc = 300 m/min (cutting speed for aluminum)<br>
+                            • D = 6mm (tool diameter)<br>
+                            • π ≈ 3.14159
+                        </div>
+                        <div style="margin-top: 12px; padding: 8px; background: white; border-radius: 4px;">
+                            <strong>RPM = (1000 × 300) / (3.14159 × 6) = 15,915 ≈ 15,000</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Feed Calculation</h3>
+                    <div class="formula-box">
+                        <div class="formula">Feed = RPM × Z × fz</div>
+                        <div style="font-size: 14px;">
+                            <strong>Variables:</strong><br>
+                            • RPM = 15,000 (calculated above)<br>
+                            • Z = 2 (number of flutes)<br>
+                            • fz = 0.060mm (chipload per tooth)
+                        </div>
+                        <div style="margin-top: 12px; padding: 8px; background: white; border-radius: 4px;">
+                            <strong>Feed = 15,000 × 2 × 0.060 = 1,800 mm/min</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Power Calculation</h3>
+                    <div class="formula-box">
+                        <div class="formula">P = SEC × MRR / η</div>
+                        <div style="font-size: 14px;">
+                            <strong>Variables:</strong><br>
+                            • SEC = 0.8 J/mm³ (specific cutting energy)<br>
+                            • MRR = 9,720 mm³/min (material removal rate)<br>
+                            • η = 0.8 (machine efficiency)
+                        </div>
+                        <div style="margin-top: 12px; padding: 8px; background: white; border-radius: 4px;">
+                            <strong>P = 0.8 × 9,720 / 0.8 = 9,720W / 60 = 162W base + losses = 1,400W</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Safety Analysis</h3>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px;">
+                        <h4 style="color: #16a34a; margin-bottom: 8px;">✅ Parameters Within Safe Range</h4>
+                        <div style="font-size: 14px;">
+                            • Chipload: 0.060mm (target: 0.04-0.12mm)<br>
+                            • Power: 1,400W (available: 2,200W)<br>
+                            • Deflection: 0.018mm (acceptable: &lt;0.02mm)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Industry terminology database
+        const INDUSTRY_TERMS = {
+            'RPM': {
+                fullName: 'Revolutions Per Minute',
+                description: 'Spindle rotational speed - the number of complete rotations the spindle makes in one minute.',
+                formula: 'RPM = (1000 × Vc) / (π × D)',
+                safetyNotes: 'Exceeding max RPM can cause tool failure or spindle damage. Too low RPM may cause work hardening.'
+            },
+            'Feed': {
+                fullName: 'Feed Rate',
+                description: 'The speed at which the cutting tool moves through the material.',
+                formula: 'Feed = RPM × Z × fz',
+                safetyNotes: 'Too high feed can break the tool. Too low can cause work hardening.'
+            },
+            'Chipload': {
+                fullName: 'Feed per Tooth',
+                description: 'The thickness of material each cutting edge removes per revolution.',
+                formula: 'fz = Feed Rate / (RPM × Number of Flutes)',
+                safetyNotes: 'Too low causes rubbing and work hardening. Too high breaks the tool.'
+            },
+            'DOC': {
+                fullName: 'Depth of Cut (Axial)',
+                description: 'The thickness of material removed in the cutting direction (along tool axis).',
+                safetyNotes: 'Excessive DOC increases cutting forces exponentially and may break the tool.'
+            },
+            'WOC': {
+                fullName: 'Width of Cut (Radial)',
+                description: 'The width of material engaged by the tool perpendicular to the cutting direction.',
+                safetyNotes: 'Full-width cuts (100% WOC) create maximum stress. Reduce for better tool life.'
+            },
+            'MRR': {
+                fullName: 'Material Removal Rate',
+                description: 'Volume of material removed per minute - measure of machining efficiency.',
+                formula: 'MRR = WOC × DOC × Feed Rate',
+                safetyNotes: 'Higher MRR generates more heat and requires more power.'
+            },
+            'Power': {
+                fullName: 'Power Required',
+                description: 'Electrical power needed from the spindle to maintain cutting.',
+                formula: 'P = SEC × MRR / η',
+                safetyNotes: 'Exceeding spindle power causes stalling and poor surface finish.'
+            },
+            'Deflection': {
+                fullName: 'Tool Deflection',
+                description: 'Bending of the tool under cutting forces, affecting accuracy and surface finish.',
+                formula: 'δ = (F × L³) / (3 × E × I)',
+                safetyNotes: 'Excessive deflection causes poor surface finish, dimensional errors, and tool chatter.'
+            }
+        };
+
+        // Create tooltip
+        function createTooltip(element, term) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip-container';
+            
+            const termData = INDUSTRY_TERMS[term];
+            if (!termData) return;
+            
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    <strong>${term}</strong> - ${termData.fullName}
+                </div>
+                <div style="margin: 8px 0; color: #374151;">
+                    ${termData.description}
+                </div>
+                ${termData.formula ? `
+                    <div style="background: #f9fafb; padding: 8px; border-radius: 4px; margin: 8px 0; font-family: monospace;">
+                        <strong>Formula:</strong> ${termData.formula}
+                    </div>
+                ` : ''}
+                ${termData.safetyNotes ? `
+                    <div style="background: #fef3c7; border-left: 3px solid #f59e0b; padding: 8px; margin: 8px 0; font-size: 12px;">
+                        <strong>⚠️ Safety:</strong> ${termData.safetyNotes}
+                    </div>
+                ` : ''}
+                <div style="font-size: 11px; color: #6b7280; margin-top: 8px;">
+                    Click parameter for detailed calculations
+                </div>
+            `;
+            
+            document.body.appendChild(tooltip);
+            
+            element.addEventListener('mouseenter', (e) => {
+                positionTooltip(tooltip, e);
+                tooltip.style.display = 'block';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+            
+            element.addEventListener('mousemove', (e) => {
+                positionTooltip(tooltip, e);
+            });
+        }
+
+        // Create parameter tooltip with range visualization
+        function createParameterTooltip(element, param) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip-container';
+            
+            // Sample data for demonstration
+            const paramData = {
+                rpm: { name: 'RPM', value: 15000, min: 8000, max: 24000, recommended: 15000, unit: ' RPM', status: 'good' },
+                feed: { name: 'Feed Rate', value: 1800, min: 500, max: 4000, recommended: 1500, unit: ' mm/min', status: 'good' },
+                chipload: { name: 'Chipload', value: 0.060, min: 0.02, max: 0.15, recommended: 0.08, unit: ' mm', status: 'good' },
+                doc: { name: 'Depth of Cut', value: 3.0, min: 0.5, max: 6.0, recommended: 3.0, unit: ' mm', status: 'good' },
+                woc: { name: 'Width of Cut', value: 1.8, min: 0.3, max: 6.0, recommended: 1.8, unit: ' mm', status: 'good' },
+                mrr: { name: 'Material Removal Rate', value: 9720, min: 1000, max: 20000, recommended: 8000, unit: ' mm³/min', status: 'good' },
+                power: { name: 'Power Required', value: 1400, min: 200, max: 2200, recommended: 1600, unit: 'W', status: 'good' },
+                deflection: { name: 'Tool Deflection', value: 0.018, min: 0, max: 0.05, recommended: 0.02, unit: ' mm', status: 'good' }
+            }[param];
+            
+            if (!paramData) return;
+            
+            const { name, value, min, max, recommended, unit, status } = paramData;
+            const statusColor = status === 'danger' ? '#ef4444' : 
+                              status === 'warning' ? '#f59e0b' : 
+                              status === 'good' ? '#10b981' : '#6b7280';
+            
+            const percentage = Math.min(Math.max((value - min) / (max - min) * 100, 0), 100);
+            const recommendedPerc = Math.min(Math.max((recommended - min) / (max - min) * 100, 0), 100);
+            
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    <strong>${name}</strong>
+                    <span style="color: ${statusColor}; margin-left: 8px;">${value}${unit}</span>
+                </div>
+                <div class="parameter-range">
+                    <div class="range-bar">
+                        <div class="range-gradient"></div>
+                        <div class="recommended-line" style="left: ${recommendedPerc}%;"></div>
+                        <div class="current-indicator" style="left: ${percentage}%; background: ${statusColor};"></div>
+                    </div>
+                    <div class="range-labels">
+                        <span>Min: ${min}${unit}</span>
+                        <span>Rec: ${recommended}${unit}</span>
+                        <span>Max: ${max}${unit}</span>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: #6b7280;">
+                    ✅ Parameter within safe operating range
+                </div>
+            `;
+            
+            document.body.appendChild(tooltip);
+            
+            element.addEventListener('mouseenter', (e) => {
+                positionTooltip(tooltip, e);
+                tooltip.style.display = 'block';
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+            
+            element.addEventListener('mousemove', (e) => {
+                positionTooltip(tooltip, e);
+            });
+        }
+
+        function positionTooltip(tooltip, event) {
+            const rect = tooltip.getBoundingClientRect();
+            const x = event.clientX + 10;
+            const y = event.clientY - rect.height - 10;
+            
+            tooltip.style.left = Math.min(x, window.innerWidth - rect.width - 10) + 'px';
+            tooltip.style.top = Math.max(y, 10) + 'px';
+        }
+
+        function showCalculationModal() {
+            document.getElementById('calculationModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('calculationModal').style.display = 'none';
+        }
+
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.tooltip-term').forEach(element => {
+                const term = element.getAttribute('data-term');
+                if (term) {
+                    createTooltip(element, term);
+                }
+            });
+            
+            document.querySelectorAll('.result-value').forEach(element => {
+                const param = element.getAttribute('data-param');
+                if (param) {
+                    createParameterTooltip(element, param);
+                }
+            });
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
