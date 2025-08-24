@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JustTheChip - Help & About</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background-color: #f9fafb;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .card li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .feature-card h4 {
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .feature-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .button-group {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .button:hover {
+            background: #2563eb;
+        }
+        
+        .button.secondary {
+            background: #6b7280;
+        }
+        
+        .button.secondary:hover {
+            background: #4b5563;
+        }
+        
+        .formula-box {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+        }
+        
+        .warning-box {
+            background: #fef3cd;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .warning-box strong {
+            color: #92400e;
+        }
+        
+        .back-nav {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+        }
+        
+        .back-nav a {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #374151;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(4px);
+        }
+        
+        .back-nav a:hover {
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="back-nav">
+        <a href="JustTheChip.html">← Back to Calculator</a>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>📚 JustTheChip Help & About</h1>
+            <p>Professional CNC Speeds & Feeds Calculator</p>
+            <p>Complete User Guide & Technical Documentation</p>
+        </div>
+        
+        <div class="button-group">
+            <a href="JustTheChip.html" class="button">🧮 Use Calculator</a>
+            <a href="#getting-started" class="button secondary">📖 Getting Started</a>
+            <a href="#features" class="button secondary">⚙️ Features</a>
+            <a href="#formulas" class="button secondary">📐 Formulas</a>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>🎯 What is JustTheChip?</h3>
+                <p>JustTheChip is a professional-grade CNC speeds and feeds calculator designed for machinists, makers, and CNC enthusiasts. It provides accurate cutting parameters based on industry-validated formulas and material properties.</p>
+                <br>
+                <p><strong>Key Benefits:</strong></p>
+                <ul>
+                    <li>Validated industry formulas</li>
+                    <li>Interactive tooltips for learning</li>
+                    <li>DOC override for custom cuts</li>
+                    <li>Enhanced machine configurations</li>
+                    <li>Real-time safety warnings</li>
+                    <li>Export/import settings</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>🚀 Quick Start Guide</h3>
+                <p><strong>Getting Started in 5 Steps:</strong></p>
+                <ol style="list-style: decimal; padding-left: 1.5rem;">
+                    <li>Select your machine type (hobby/industrial)</li>
+                    <li>Configure spindle and tool parameters</li>
+                    <li>Choose materials and cut types</li>
+                    <li>Adjust aggressiveness factor</li>
+                    <li>Review results and warnings</li>
+                </ol>
+                <br>
+                <p><strong>Pro Tips:</strong></p>
+                <ul>
+                    <li>Hover over results for detailed tooltips</li>
+                    <li>Enable DOC override for custom cuts</li>
+                    <li>Export settings for reuse</li>
+                    <li>Start conservative, increase gradually</li>
+                </ul>
+            </div>
+        </div>
+        
+        <section id="features">
+            <h2 style="text-align: center; margin: 2rem 0; color: #1f2937;">🔧 Advanced Features</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🎯 Interactive DOC Override</h4>
+                    <p>Enable manual depth of cut control with real-time validation. Perfect for custom cuts and material optimization with immediate feedback on safety limits.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>💡 Smart Tooltips</h4>
+                    <p>Hover over any result value to see detailed parameter information, safe operating ranges, and visual status indicators for enhanced learning.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>🏭 Enhanced Machine Config</h4>
+                    <p>Detailed machine specifications including motor types, drive systems, and performance characteristics for accurate calculations.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>📊 Validated Formulas</h4>
+                    <p>Industry-standard calculations based on machining handbooks with validated material coefficients and cutting parameters.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>⚠️ Real-time Warnings</h4>
+                    <p>Intelligent safety warnings for power limits, chipload ranges, and tool life optimization with color-coded status indicators.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4>💾 Settings Management</h4>
+                    <p>Export and import complete configuration settings for consistent results across projects and easy sharing with team members.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="getting-started">
+            <h2 style="text-align: center; margin: 2rem 0; color: #1f2937;">📖 Detailed User Guide</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🏭 Machine Configuration</h3>
+                    <p><strong>Machine Types:</strong></p>
+                    <ul>
+                        <li><strong>Light Hobby:</strong> 3D printer conversions, small routers</li>
+                        <li><strong>PrintNC/Heavy Hobby:</strong> Sturdy DIY machines</li>
+                        <li><strong>Light Industrial:</strong> Commercial entry-level CNCs</li>
+                        <li><strong>Industrial:</strong> Heavy-duty production machines</li>
+                    </ul>
+                    <br>
+                    <p><strong>Motor & Drive Systems:</strong></p>
+                    <ul>
+                        <li>Stepper motors (NEMA 23/34)</li>
+                        <li>AC/DC servo motors</li>
+                        <li>Ball screws vs. lead screws</li>
+                        <li>Belt drives and rack systems</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>🔧 Tool Setup</h3>
+                    <p><strong>Supported Tool Types:</strong></p>
+                    <ul>
+                        <li>Flat end mills (most common)</li>
+                        <li>Ball end mills (3D contours)</li>
+                        <li>Chamfer mills (edge finishing)</li>
+                        <li>V-bits (engraving, chamfers)</li>
+                        <li>Drill bits (hole making)</li>
+                        <li>Face mills (large flat surfaces)</li>
+                    </ul>
+                    <br>
+                    <p><strong>Key Parameters:</strong></p>
+                    <ul>
+                        <li>Diameter affects surface speed</li>
+                        <li>Flute count impacts feed rate</li>
+                        <li>Stickout affects deflection</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🎯 DOC Override Feature</h3>
+                <p>The Depth of Cut override allows precise control over cutting depth:</p>
+                <ul>
+                    <li><strong>Toggle Switch:</strong> Enable/disable manual DOC control</li>
+                    <li><strong>Custom Input:</strong> Specify exact cutting depth in millimeters</li>
+                    <li><strong>Real-time Validation:</strong> Immediate warnings for unsafe values</li>
+                    <li><strong>Material Limits:</strong> Automatic checking against material maximums</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> When DOC override is enabled, monitor warnings carefully. Excessive depth can cause tool breakage, poor surface finish, or machine damage.
+                </div>
+            </div>
+        </section>
+        
+        <section id="formulas">
+            <h2 style="text-align: center; margin: 2rem 0; color: #1f2937;">📐 Technical Formulas & Calculations</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>⚡ Core Calculations</h3>
+                    <p><strong>Surface Speed to RPM:</strong></p>
+                    <div class="formula-box">
+                        RPM = (Surface Speed × 1000) / (π × Tool Diameter)
+                    </div>
+                    
+                    <p><strong>Feed Rate:</strong></p>
+                    <div class="formula-box">
+                        Feed Rate = RPM × Flutes × Chipload
+                    </div>
+                    
+                    <p><strong>Material Removal Rate:</strong></p>
+                    <div class="formula-box">
+                        MRR = Width of Cut × Depth of Cut × Feed Rate
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>🔋 Power Calculations</h3>
+                    <p><strong>Cutting Power (Enhanced Model):</strong></p>
+                    <div class="formula-box">
+                        Power = (MRR × Specific Energy) / 60 + Spindle Losses
+                    </div>
+                    
+                    <p><strong>Specific Cutting Energies (J/mm³):</strong></p>
+                    <ul>
+                        <li>Aluminum 6061-T6: 0.7</li>
+                        <li>Steel 1018: 2.1</li>
+                        <li>Stainless 316: 2.4</li>
+                        <li>Titanium: 1.8</li>
+                        <li>Delrin: 0.4</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📊 Chipload Ranges by Material</h3>
+                <p>Recommended chipload values for different aggressiveness levels:</p>
+                
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <thead>
+                        <tr style="background: #f9fafb;">
+                            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Material</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Conservative</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Moderate</th>
+                            <th style="padding: 8px; text-align: left; border: 1px solid #e5e7eb;">Aggressive</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">Aluminum 6061</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.008-0.020 mm</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.015-0.040 mm</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.025-0.060 mm</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">Steel 1018</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.005-0.015 mm</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.010-0.025 mm</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.015-0.035 mm</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">Stainless 316</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.004-0.012 mm</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.009-0.022 mm</td>
+                            <td style="padding: 8px; border: 1px solid #e5e7eb;">0.014-0.030 mm</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <section style="margin: 2rem 0;">
+            <h2 style="text-align: center; margin: 2rem 0; color: #1f2937;">🏆 About JustTheChip</h2>
+            
+            <div class="card">
+                <h3>📈 Development History</h3>
+                <p>JustTheChip has evolved from a simple calculation tool to a comprehensive CNC parameter calculator:</p>
+                <ul>
+                    <li><strong>v1.0:</strong> Basic speeds and feeds calculations</li>
+                    <li><strong>v2.0:</strong> Enhanced formulas and DOC override</li>
+                    <li><strong>Consolidated:</strong> Merged features, tooltips, and self-contained design</li>
+                </ul>
+                <br>
+                <p><strong>Technical Improvements:</strong></p>
+                <ul>
+                    <li>Validated material coefficients based on industry data</li>
+                    <li>Enhanced power calculation model</li>
+                    <li>Interactive tooltip system for education</li>
+                    <li>Real-time parameter validation</li>
+                    <li>Comprehensive machine configuration options</li>
+                </ul>
+            </div>
+        </section>
+        
+        <div class="button-group">
+            <a href="JustTheChip.html" class="button">🧮 Start Calculating</a>
+            <a href="#top" class="button secondary">⬆️ Back to Top</a>
+        </div>
+        
+        <footer style="text-align: center; margin-top: 2rem; padding: 1rem; color: #6b7280; font-size: 0.9rem;">
+            <p>JustTheChip - Professional CNC Speeds & Feeds Calculator</p>
+            <p>Enhanced with DOC Override, Interactive Tooltips & Validated Formulas</p>
+        </footer>
+    </div>
+</body>
+</html>
